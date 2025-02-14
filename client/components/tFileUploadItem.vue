@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FileItem } from "~/types/composables/useUploader";
+import type { FileItem } from "~/composables/useUploader";
 
 const props = defineProps<{
   file: FileItem;

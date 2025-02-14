@@ -10,6 +10,8 @@ export type AvatarOptions = {
 };
 
 export type MenuOption = AvatarOptions & {
+  label?: string;
+  divider?: boolean;
   active?: boolean;
   exact?: boolean;
   children?: Array<MenuOption>;

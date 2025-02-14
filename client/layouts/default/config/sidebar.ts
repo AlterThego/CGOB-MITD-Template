@@ -1,32 +1,36 @@
 import type { MenuOption } from "~/types";
 
 const $route = useRoute();
-const { getMenuItem, getMenuGroup } = useNavBuilder();
+const { isPermitted } = usePermitted();
 
-/**
- * Commented items are from "SC3 Dashboard" and is left here for reference.
- */
 export const home = shallowRef([
-  // getMenuItem("environment"),
-  // getMenuItem("gis"),
-  // getMenuItem("sensors"),
-  // { divider: true },
-  // getMenuGroup("surveillance-system", ["ss-video-wall", "ss-anpr-data"]),
-  // getMenuItem("resources"),
-  // getMenuGroup("health", ["dengue"]),
-  // getMenuItem("mortality"),
-  // getMenuItem("law"),
+  {
+    label: "Dashboard",
+    icon: "tabler:layout-dashboard",
+    to: { name: "dashboard" },
+  },
+
 ]);
 
 export const settings = shallowRef([
-  // getMenuItem("settings-air-sensors"),
-  // getMenuItem("settings-philsensors"),
-  // getMenuItem("settings-sensors"),
-  // getMenuItem("settings-gis"),
-  { divider: true },
-  getMenuItem("settings-accounts"),
-  getMenuItem("settings-roles"),
-  getMenuItem("settings-permissions"),
+  {
+    label: "Accounts Management",
+    icon: "tabler:users",
+    to: { name: "settings-accounts" },
+    hidden: computed<boolean>(() => !isPermitted("settings-accounts")),
+  },
+  {
+    label: "Roles",
+    icon: "tabler:lock",
+    to: { name: "settings-roles" },
+    hidden: computed<boolean>(() => !isPermitted("settings-roles")),
+  },
+  {
+    label: "Permissions",
+    icon: "tabler:lock-access",
+    to: { name: "settings-permissions" },
+    hidden: computed<boolean>(() => !isPermitted("settings-permissions")),
+  },
 ]);
 
 export default computed<Array<MenuOption>>(() => {

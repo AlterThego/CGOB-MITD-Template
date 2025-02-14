@@ -10,16 +10,12 @@ const $route = useRoute();
 
 type ModalType = "Editor" | "Delete";
 
-const { pagination, params, loading, search } = useSearcher<{ search: string }>(
-  {
-    api: "/permissions",
-    limit: 9,
-    appendToUrl: true,
-    onSearch: (response) => {
-      permissions.value = response.data.data as Array<PermissionItem>;
-    },
-  },
-);
+const { pagination, searcher } = useSearcher({
+  api: "/permissions",
+  limit: 9,
+  appendToUrl: true,
+  onPageChange: () => getPermissions(),
+});
 
 const columns = ref([
   {
@@ -45,6 +41,8 @@ const columns = ref([
 ]);
 
 const permissions = ref<Array<PermissionItem>>([]);
+const search = ref(($route.query.search as string) ?? "");
+const loading = ref(false);
 const modal = ref<{
   open: boolean;
   data: PermissionItem | null;
@@ -54,6 +52,18 @@ const modal = ref<{
   data: null,
   type: "Editor",
 });
+
+const getPermissions = () => {
+  loading.value = true;
+
+  searcher({ search: search.value })
+    .then((res) => {
+      permissions.value = res.data.data as Array<PermissionItem>;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
 
 const onSave = (data: PermissionItem) => {
   merge(permissions.value, data);
@@ -75,7 +85,7 @@ const onDelete = (data: PermissionItem) => {
 };
 
 onMounted(() => {
-  search();
+  getPermissions();
 });
 </script>
 
@@ -97,7 +107,7 @@ onMounted(() => {
         <div class="flex flex-auto items-center justify-between px-3 py-3.5">
           <div class="flex items-center gap-4">
             <TInput
-              v-model="params.search"
+              v-model="search"
               size="md"
               color="white"
               trailing-icon="tabler:search"
@@ -106,7 +116,7 @@ onMounted(() => {
                 icon: { trailing: { pointer: '', padding: { md: 'px-0' } } },
               }"
               class="flex-auto"
-              @keyup.enter="search"
+              @keyup.enter="getPermissions"
             >
               <template #trailing>
                 <TButton
@@ -116,7 +126,7 @@ onMounted(() => {
                   size="md"
                   variant="link"
                   class="px-3"
-                  @click="search"
+                  @click="getPermissions"
                 />
               </template>
             </TInput>
@@ -204,7 +214,7 @@ onMounted(() => {
       <Editor
         v-if="modal.type === 'Editor'"
         v-model="modal.data"
-        @update:modelValue="onSave($event as PermissionItem)"
+        @update:modelValue="onSave"
         @close="modal.open = false"
       />
 

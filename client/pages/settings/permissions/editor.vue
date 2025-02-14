@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { z } from "zod";
-import type { Form, FormSubmitEvent } from "#ui/types";
+import { TForm } from "#components";
+import type { FormSubmitEvent } from "#ui/types";
 import type { PermissionItem } from "~/types/models/permission";
 
 const { $api } = useNuxtApp();
@@ -14,6 +15,7 @@ const model = defineModel({
 
 const emit = defineEmits(["close"]);
 
+const form = ref<InstanceType<typeof TForm> | null>(null);
 const pattern = /[^:a-z_-]{1,}/g;
 const loading = ref<boolean>(false);
 const debounce = ref<NodeJS.Timeout | null>(null);
@@ -24,13 +26,12 @@ const schema = z.object({
     .refine((val) => !pattern.test(val), {
       message: "Name can only contain letters, underscores, dashes and colons",
     }),
-  description: z.string().optional().nullable(),
+  description: z.string().nullable(),
 });
 type Schema = z.output<typeof schema>;
-const form = ref<Form<Schema>>();
-const state = ref({
-  name: model.value?.name,
-  description: model.value?.description,
+const state = reactive({
+  name: model.value?.name ?? null,
+  description: model.value?.description ?? null,
 });
 
 const isEdit = computed(() => !!model.value?.id);
@@ -40,7 +41,7 @@ const savePermission = async (e: FormSubmitEvent<Schema>) => {
     loading.value = true;
 
     const method = isEdit.value ? "patch" : "post";
-    const uri = `/permissions${isEdit.value ? "/" + model.value?.id : ""}`;
+    const uri = `/permission${isEdit.value ? "/" + model.value?.id : ""}`;
 
     $api[method](uri, e.data)
       .then((response) => {
@@ -75,7 +76,7 @@ const onChange = (e: KeyboardEvent) => {
 
   debounce.value = setTimeout(() => {
     const rawValue = (e.target as HTMLInputElement).value;
-    state.value.name = rawValue
+    state.name = rawValue
       .toLowerCase()
       .replace(/\s/g, "_")
       .replace(pattern, "");

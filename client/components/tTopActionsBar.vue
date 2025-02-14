@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { boolean } from "zod";
 import DatePicker from "~/components/DatePicker.vue";
-const { customize } = useIcon();
 
 type Duration = {
   days?: number;
@@ -16,8 +14,6 @@ const props = defineProps<{
   enableDropdown?: boolean;
 }>();
 
-const reset = ref(false);
-
 const emit = defineEmits(["update:q"]);
 
 const $dayjs = useDayjs();
@@ -31,20 +27,12 @@ const ranges = [
   { label: "Last year", duration: { years: 1 } },
 ];
 
-const defaultRange = {
-  start: $dayjs().subtract(7, "day").format("YYYY-MM-DD"),
+const selected = ref({
+  start: $dayjs().subtract(14, "day").format("YYYY-MM-DD"),
   end: $dayjs().format("YYYY-MM-DD"),
-};
-const selected = ref({ ...defaultRange });
-
-const isRangeSelected = computed(() => {
-  return (
-    selected.value.start !== defaultRange.start ||
-    selected.value.end !== defaultRange.end
-  );
 });
 
-function dateRangeSelected(duration: Duration) {
+function isRangeSelected(duration: Duration) {
   const start = $dayjs()
     .subtract(duration.days || 0, "day")
     .subtract(duration.months || 0, "month")
@@ -71,11 +59,6 @@ function selectRange(duration: Duration) {
 function updateQ(event: Event) {
   const target = event.target as HTMLInputElement;
   emit("update:q", target.value);
-}
-
-function resetSelection() {
-  selected.value = { ...defaultRange };
-  reset.value = false;
 }
 </script>
 <template>
@@ -111,7 +94,7 @@ function resetSelection() {
                 variant="ghost"
                 class="rounded-none px-6"
                 :class="[
-                  dateRangeSelected(range.duration)
+                  isRangeSelected(range.duration)
                     ? 'bg-gray-100 dark:bg-gray-800'
                     : 'hover:bg-gray-50 dark:hover:bg-gray-800/50',
                 ]"
@@ -124,15 +107,6 @@ function resetSelection() {
           </div>
         </template>
       </TPopover>
-
-      <!-- Button will appear if selected a date range, this will reset the selection -->
-      <button v-if="isRangeSelected" @click="resetSelection">
-        <TIcon
-          name="tabler:refresh"
-          class="text-primary h-6 w-6"
-          :customize="(c: string) => customize(c, { strokeWidth: 2 })"
-        />
-      </button>
     </div>
     <div class="flex items-center gap-3">
       <TDropdown

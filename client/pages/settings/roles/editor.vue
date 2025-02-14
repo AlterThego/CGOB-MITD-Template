@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { z } from "zod";
-import { TForm } from "#components";
-import type { Form, FormErrorEvent, FormSubmitEvent } from "#ui/types";
-import type { RoleItem } from "~/types/models";
-import PermissionSelect from "~/components/userEditor/permissions/permissionsSelect.vue";
+import { Body, TForm } from "#components";
+import type { FormErrorEvent, FormSubmitEvent } from "#ui/types";
+import type { RoleItem, PermissionItem } from "~/types/models";
+import PermissionSelect from "./permissions.vue";
 
 const { randomColor } = useColors();
 
@@ -18,13 +18,14 @@ const emit = defineEmits(["close"]);
 
 const loading = ref(false);
 const loadingMessage = ref("");
-const permissionError = ref<string>();
+const permissionError = ref<string | null>(null);
+const form = ref<InstanceType<typeof TForm> | null>(null);
 
 const schema = z.object({
   name: z
     .string({ message: "Name is required" })
     .min(1, { message: "Name is required" }),
-  description: z.string().optional(),
+  description: z.string().nullable(),
   color: z.string().refine(
     (val) => {
       if (!val) return false;
@@ -46,10 +47,9 @@ const schema = z.object({
     .optional(),
 });
 type Schema = z.output<typeof schema>;
-const form = ref<Form<Schema>>();
 const state = ref({
-  name: model.value?.name ?? "",
-  description: model.value?.description ?? "",
+  name: model.value?.name ?? null,
+  description: model.value?.description ?? null,
   color: model.value?.color ?? randomColor(),
   permissions: model.value?.permissions ?? [],
 });
@@ -62,7 +62,7 @@ const saveRole = async (e: FormSubmitEvent<Schema>) => {
     loading.value = true;
 
     const method = isEdit.value ? "patch" : "post";
-    const uri = `/roles${isEdit.value ? "/" + model.value?.id : ""}`;
+    const uri = `/role${isEdit.value ? "/" + model.value?.id : ""}`;
 
     const data = {
       ...e.data,
@@ -95,10 +95,8 @@ const saveRole = async (e: FormSubmitEvent<Schema>) => {
 };
 
 const onError = async (e: FormErrorEvent) => {
-  console.log(e);
-  permissionError.value = e.errors.find(
-    (err) => err.path === "permissions",
-  )?.message;
+  permissionError.value =
+    e.errors.find((err) => err.path === "permissions")?.message ?? null;
 };
 </script>
 
@@ -117,7 +115,7 @@ const onError = async (e: FormErrorEvent) => {
     }"
   >
     <template #header>
-      <div class="flex w-full items-center justify-between py-2">
+      <div class="flex w-full items-center justify-between py-2 pl-4">
         <h3
           class="text-base font-semibold leading-6 text-gray-900 dark:text-white"
         >
@@ -143,7 +141,7 @@ const onError = async (e: FormErrorEvent) => {
       @submit="saveRole"
       @error="onError"
     >
-      <div class="flex items-center gap-4">
+      <div class="itemsc-enter flex gap-4 px-4">
         <TFormGroup
           label="Name"
           name="name"
@@ -168,40 +166,38 @@ const onError = async (e: FormErrorEvent) => {
             </TTooltip>
           </template>
         </TFormGroup>
-        <div class="flex items-center gap-1">
-          <TFormGroup label="Color" name="color" required>
-            <TColorPicker v-model="state.color" v-slot="{ color, isDark }">
-              <TButton
-                id="color"
-                icon="tabler:color-picker"
-                class="w-full flex-wrap justify-center"
-                :class="{
-                  '!text-gray-200': isDark(state.color!),
-                  '!text-gray-700': !isDark(state.color!),
-                }"
-                :disabled="loading"
-                :style="{ backgroundColor: state.color }"
-              />
-            </TColorPicker>
-          </TFormGroup>
-          <TButton
-            icon="tabler:file-description"
-            variant="ghost"
-            color="gray"
-            class="self-end"
-            :class="{
-              'text-primary-400 dark:text-primary-400': showDesc,
-            }"
-            @click="showDesc = !showDesc"
-          />
-        </div>
+        <TFormGroup label="Color" name="color" required>
+          <TColorPicker v-model="state.color" v-slot="{ color, isDark }">
+            <TButton
+              id="color"
+              icon="tabler:color-picker"
+              class="w-full flex-wrap justify-center"
+              :class="{
+                '!text-gray-200': isDark(state.color!),
+                '!text-gray-700': !isDark(state.color!),
+              }"
+              :disabled="loading"
+              :style="{ backgroundColor: state.color }"
+            />
+          </TColorPicker>
+        </TFormGroup>
+        <TButton
+          icon="tabler:file-description"
+          variant="ghost"
+          color="gray"
+          class="self-end"
+          :class="{
+            'text-primary-400 dark:text-primary-400': showDesc,
+          }"
+          @click="showDesc = !showDesc"
+        />
       </div>
       <TCollapse v-model="showDesc">
         <TFormGroup
           label="Description"
           name="description"
           hint="Optional"
-          class="px-0.5"
+          class="px-4"
           :ui="{ label: { base: 'flex-auto flex items-center' } }"
         >
           <TTextarea
@@ -213,7 +209,7 @@ const onError = async (e: FormErrorEvent) => {
         </TFormGroup>
       </TCollapse>
       <PermissionSelect
-        searchApi="/roles/permissions"
+        searchApi="/role/permissions"
         v-model="state.permissions"
         v-model:loading="loading"
         v-model:loadingMessage="loadingMessage"
