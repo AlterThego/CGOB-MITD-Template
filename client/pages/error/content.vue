@@ -1,13 +1,8 @@
 <script setup lang="ts">
 const router = useRouter();
 
-const canGoBack = computed(() => !!router.currentRoute.value.redirectedFrom);
 const goBack = () => {
-  if (!canGoBack.value) {
-    router.push({ name: "home" });
-  } else {
-    router.back();
-  }
+  router.back();
 };
 
 const props = defineProps<{
@@ -26,14 +21,10 @@ const props = defineProps<{
         {{ statusCode }}
       </TTypography>
       <TTypography variant="xl" class="font-medium">{{ title }}</TTypography>
-      <slot :message>
-        <TTypography variant="md" class="max-w-lg text-center">
-          {{ message }}
-        </TTypography>
-      </slot>
+      <TTypography variant="md" class="max-w-lg text-center">
+        {{ message }}
+      </TTypography>
     </div>
-    <slot name="actions">
-      <TButton :label="canGoBack ? 'Go back' : 'Home'" @click="goBack" />
-    </slot>
+    <TButton @click="goBack">Go back</TButton>
   </div>
 </template>

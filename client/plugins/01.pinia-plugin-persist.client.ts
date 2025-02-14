@@ -1,7 +1,6 @@
 import { createPersistedStatePlugin } from "pinia-plugin-persistedstate-2";
 import { EncryptStorage } from "encrypt-storage";
 import type { Pinia } from "pinia";
-import { PiniaSharedState } from "pinia-shared-state";
 
 export default defineNuxtPlugin((nuxtApp) => {
   const runtimeCongfig = useRuntimeConfig();
@@ -36,5 +35,4 @@ export default defineNuxtPlugin((nuxtApp) => {
     };
   }
   pinia.use(createPersistedStatePlugin(persistOptions));
-  pinia.use(PiniaSharedState({ type: "localstorage" }));
 });

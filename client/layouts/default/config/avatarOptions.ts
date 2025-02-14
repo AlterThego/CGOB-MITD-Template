@@ -1,12 +1,24 @@
 import type { AvatarOptions } from "~/types";
+import { settings } from "~/routes/permissions";
 
-const { getMenuItem, getNextValidChild } = useNavBuilder();
+const { isPermitted } = usePermitted();
 
 export default computed<Array<AvatarOptions>>(() => [
-  getMenuItem("profile"),
-  { label: "Help", icon: "tabler:help" },
-  { divider: false },
-  Object.assign(getMenuItem("settings"), {
-    to: { name: getNextValidChild("settings")?.name },
-  }),
+  {
+    label: "Account",
+    icon: "tabler:user",
+  },
+  {
+    label: "Help",
+    icon: "tabler:help",
+  },
+  {
+    divider: false,
+  },
+  {
+    label: "Settings",
+    icon: "tabler:settings",
+    to: { name: "settings" },
+    hidden: computed<boolean>(() => !isPermitted(Object.keys(settings))),
+  },
 ]);

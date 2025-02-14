@@ -1,150 +1,218 @@
 <script setup lang="ts">
-import type { User } from "~/types/models/users";
-import type { HasKey } from "~/types";
-import UserItem from "./userItem.vue";
-import Editor from "./editor.vue";
-import Toggle from "~/components/userEditor/toggle/index.vue";
+import { accountsUserCard } from "~/data/accountsDummy";
+import UserAvatar from "./userAvatar.vue";
+import UserInformation from "./userInfo.vue";
+import AccountDetails from "./accountDetails.vue";
+import RolesPermissions from "./role_permissions.vue";
+import Address from "./address.vue";
 
-const { merge } = useModels();
-const $guard = useGuard();
-const { pagination, params, loading, search } = useSearcher<{
-  search: string;
-  perms: boolean;
-}>({
-  api: "/users",
-  appendToUrl: true,
-  onSearch: (response) => {
-    users.value = response.data.data as Array<User>;
-  },
-});
-const users = ref<Array<User>>([]);
-const modal = ref<{
-  show: boolean;
-  data: User | null;
-  type: string;
-}>({
-  show: false,
-  data: null,
-  type: "Editor",
-});
+const { stringToColour } = useColors();
+const userCard = ref(accountsUserCard);
+const isOpen = ref(false);
+const isLoading = ref(false);
+const selectedFilter = ref([]);
+const openEdit = ref(false);
 
-const modalWidth = computed(() => {
-  const main = "w-screen-95";
-  const widths = {
-    Editor: "sm:max-w-xl",
-    Toggle: "sm:max-w-sm",
-  } as HasKey;
-
-  return [main, widths[modal.value.type]].join(" ");
-});
-
-const openModal = (data: User | null = null, type: string = "") => {
-  modal.value.data = data;
-  modal.value.type = type;
-  modal.value.show = true;
+const handleSubmit = () => {
+  isLoading.value = true;
+  setTimeout(() => {
+    isOpen.value = false;
+    isLoading.value = false;
+  }, 1500);
 };
 
-const onNewUser = (newUser: User) => {
-  merge(users.value, newUser);
+const handleCancel = () => {
+  isOpen.value = false;
+  openEdit.value = false;
 };
-
-onMounted(() => {
-  params.value.perms = true;
-  search();
-});
 </script>
-
 <template>
-  <TContainer class="block h-full w-full">
-    <TCard
-      class="relative h-full"
-      :ui="{
-        base: 'border-0',
-        background: '!bg-inherit',
-        divide: 'divide-y divide-gray-400/25',
-        header: {
-          base: 'sticky top-[calc(5rem_-_7px)] z-20 p-0 rounded-t-md bg-gray-50 dark:bg-gray-900',
-        },
-        footer: {
-          base: 'sticky bottom-0 bg-gray-50 dark:bg-gray-900 rounded-b-md',
-        },
-      }"
-    >
-      <template #header>
-        <div class="flex flex-auto items-center justify-between px-3 py-3.5">
-          <div class="flex items-center gap-4">
-            <TInput
-              v-model="params.search"
-              size="md"
-              color="white"
-              trailing-icon="tabler:search"
-              placeholder="Search..."
-              name="search"
-              :ui="{
-                icon: { trailing: { pointer: '', padding: { md: 'px-0' } } },
-              }"
-              class="flex-auto"
-              @keyup.enter="search"
-            >
-              <template #trailing>
-                <TButton
-                  icon="tabler:search"
-                  :loading
-                  color="gray"
-                  size="md"
-                  variant="link"
-                  class="px-3"
-                  @click="search"
-                />
-              </template>
-            </TInput>
-          </div>
-          <TButton
-            v-if="$guard.can('users_add')"
-            icon="tabler:plus"
-            @click="openModal(null, 'Editor')"
-          >
-            Add User
-          </TButton>
-        </div>
-      </template>
+  <div>
+    <div class="w-full space-y-4 px-6 pb-4 pt-6">
       <div
-        class="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+        class="sticky top-0 col-span-full row-span-1 flex items-center justify-between"
       >
-        <template v-for="user in users" :key="user.id">
-          <UserItem
-            :canEdit="
-              $guard.canAny(
-                'users_edit-profile',
-                'users_edit-account',
-                'users_edit-permission',
-              )
-            "
-            :user
-            @edit="openModal(user, 'Editor')"
-            @toggle="openModal(user, 'Toggle')"
+        <div class="flex items-center gap-4">
+          <TInput
+            icon="tabler:search"
+            size="sm"
+            color="white"
+            trailing
+            placeholder="Search..."
           />
-        </template>
+        </div>
+        <div class="flex items-center gap-3">
+          <TSelectMenu
+            v-slot="{ open }"
+            searchable-placeholder="Search a Role..."
+            class="min-w-32"
+            v-model="selectedFilter"
+            :options="['Active', 'Inactive', 'Clear']"
+            :ui="{ background: '!bg-transparent' }"
+          >
+            <TButton color="gray" class="flex-1 justify-between text-gray-400">
+              <span
+                v-if="selectedFilter.length !== 0"
+                class="max-w-40 truncate"
+                >{{ selectedFilter }}</span
+              >
+              <span v-else>Select Status</span>
+              <TIcon
+                name="i-heroicons-chevron-right-20-solid"
+                class="h-5 w-5 transition-transform dark:text-gray-500"
+                :class="[open && 'rotate-90 transform']"
+              />
+            </TButton>
+          </TSelectMenu>
+          <TSelectMenu
+            v-slot="{ open }"
+            multiple
+            searchable-placeholder="Search a Role..."
+            class="min-w-32"
+            v-model="selectedFilter"
+            :options="rolesList"
+            :ui="{ background: '!bg-transparent' }"
+          >
+            <TButton color="gray" class="flex-1 justify-between text-gray-400">
+              <span>Select Role Filter</span>
+              <TIcon
+                name="i-heroicons-chevron-right-20-solid"
+                class="h-5 w-5 transition-transform dark:text-gray-500"
+                :class="[open && 'rotate-90 transform']"
+              />
+            </TButton>
+          </TSelectMenu>
+          <TButton icon="tabler:plus" label="Open" @click="isOpen = true"
+            >Add New Admin</TButton
+          >
+        </div>
       </div>
-    </TCard>
 
+      <div class="grid grid-cols-5 gap-4">
+        <TCard
+          v-for="data in userCard"
+          :key="data.id"
+          class="relative overflow-hidden"
+        >
+          <div
+            class="absolute inset-x-0 top-0 h-16 opacity-70"
+            :style="{ backgroundColor: stringToColour(`${data.firstname} ${data.lastname}`) }"
+          ></div>
+          <div class="flex h-full flex-col items-center gap-4 px-4 pb-4 pt-6">
+            <div class="flex flex-col items-center gap-4">
+              <TAvatar
+                class="shadow-md"
+                size="3xl"
+                src="https://avatars.githubusercontent.com/u/739984?v=4"
+                alt="Avatar"
+              />
+              <TTypography class="text-base">{{
+                `${data.firstname} ${data.lastname}`
+              }}</TTypography>
+              <!-- Badge Color should change base on color -->
+              <div class="text flex flex-wrap justify-center gap-1">
+                <TBadge
+                  v-for="role in data.roles"
+                  :key="role.name"
+                  :label="role.name"
+                  :style="{
+                    backgroundColor: `rgba(${role.color}, 0.1)`,
+                    '--tw-ring-color': `rgba(${role.color})`,
+                    color: `rgba(${role.color})`,
+                  }"
+                  size="sm"
+                  variant="subtle"
+                  :ui="{ rounded: 'rounded-full' }"
+                />
+              </div>
+            </div>
+            <div class="flex-auto content-end space-x-3 pt-3">
+              <TButton
+                icon="tabler:eye"
+                color="gray"
+                size="sm"
+                variant="solid"
+                label="View"
+              />
+              <TButton
+                icon="tabler:pencil"
+                color="gray"
+                size="sm"
+                variant="solid"
+                label="Edit"
+                @click="
+                  isOpen = true;
+                  openEdit = true;
+                "
+              />
+              <TButton
+                icon="tabler:lock"
+                color="gray"
+                size="sm"
+                variant="solid"
+                label="Deactivate"
+              />
+            </div>
+          </div>
+        </TCard>
+      </div>
+    </div>
+    <!-- Modal -->
     <TModal
-      v-model="modal.show"
-      prevent-close
-      :ui="{ width: modalWidth, margin: '' }"
+      v-model="isOpen"
+      :prevent-close="isLoading"
+      :ui="{ base: 'sm:!max-w-5xl' }"
     >
-      <Editor
-        v-if="modal.type === 'Editor'"
-        v-model="modal.data"
-        @update:modelValue="onNewUser($event! as User)"
-        @close="modal.show = false"
-      />
-      <Toggle
-        v-else-if="modal.type === 'Toggle'"
-        v-model:user="modal.data!"
-        @update:user="onNewUser($event! as User)"
-        @close="modal.show = false"
-      />
+      <TCard
+        :ui="{
+          ring: '',
+          divide: 'divide-y divide-gray-100 dark:divide-gray-800',
+        }"
+      >
+        <template #header>
+          <div class="flex w-full items-center justify-between px-8 py-2">
+            <h3
+              class="text-base font-semibold leading-6 text-gray-900 dark:text-white"
+            >
+              {{ openEdit ? "Edit User" : "Add New Admin" }}
+            </h3>
+            <TButton
+              color="gray"
+              variant="ghost"
+              icon="tabler:x"
+              class="-my-1"
+              @click="handleCancel()"
+            />
+          </div>
+        </template>
+        <div class="space-y-4 px-8 py-4">
+          <TForm :state="state">
+            <div class="grid grid-cols-7 gap-10">
+              <div class="col-span-4">
+                <UserAvatar />
+                <UserInformation :openEdit="openEdit" />
+                <AccountDetails :openEdit="openEdit" />
+                <Address :openEdit="openEdit" />
+              </div>
+              <div class="col-span-3">
+                <RolesPermissions :openEdit="openEdit" />
+              </div>
+            </div>
+          </TForm>
+          <div class="flex items-center justify-end gap-3 pt-4">
+            <TButton
+              v-if="!openEdit"
+              @click="
+                handleSubmit;
+                openEdit = false;
+              "
+              :loading="isLoading"
+              >Submit</TButton
+            >
+            <TButton variant="outline" @click="handleCancel()">Cancel</TButton>
+          </div>
+        </div>
+      </TCard>
     </TModal>
-  </TContainer>
+  </div>
 </template>

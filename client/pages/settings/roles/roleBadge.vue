@@ -10,16 +10,13 @@ const badge = ref<InstanceType<typeof TBadge> | null>(null);
 const setColors = () => {
   const rgba = hexAToRGBA(props.color);
   const rgbVar = `${rgba.r} ${rgba.g} ${rgba.b}`;
-  const el = badge.value?.$el;
 
-  if (!!el) {
-    el.style.setProperty(
-      "--tw-ring-color",
-      `rgb(${rgbVar} / var(--tw-ring-opacity))`,
-    );
-    el.style.color = props.color;
-    el.style.backgroundColor = `rgb(${rgbVar} / 0.1)`;
-  }
+  badge.value.$el.style.setProperty(
+    "--tw-ring-color",
+    `rgb(${rgbVar} / var(--tw-ring-opacity))`,
+  );
+  badge.value.$el.style.color = props.color;
+  badge.value.$el.style.backgroundColor = `rgb(${rgbVar} / 0.1)`;
 };
 
 watch(() => props.color, setColors);

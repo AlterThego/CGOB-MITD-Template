@@ -3,5 +3,5 @@ import routes, { scrollBehavior } from "@/routes";
 
 export default <RouterConfig>{
   scrollBehavior,
-  routes: (_routes) => toValue(routes),
+  routes: (_routes) => routes,
 };

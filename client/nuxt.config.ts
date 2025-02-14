@@ -43,7 +43,6 @@ export default defineNuxtConfig({
   ],
 
   app: {
-    buildAssetsDir: "assets",
     head: {
       charset: "utf-8",
       viewport: "width=device-width, initial-scale=1",
@@ -84,7 +83,6 @@ export default defineNuxtConfig({
       short_name: process.env.NUXT_PUBLIC_SHORT_NAME || "",
       description: process.env.NUXT_PUBLIC_DESCRIPTION || "",
       office_name: process.env.NUXT_PUBLIC_OFFICE_NAME || "",
-      openweather_api_key: process.env.NUXT_OPENWEATHER_API_KEY || "",
       store: {
         encrypt: process.env.NUXT_STORE_ENCRYPT || "auto",
         salt: process.env.NUXT_STORE_SALT || "",
@@ -112,7 +110,7 @@ export default defineNuxtConfig({
 
   pwa: {
     devOptions: {
-      enabled: false, // Enabling devOptions breaks NUXT Devtools and tailwindcss viewer, Enable only if you want to test PWA in dev mode
+      enabled: true, // Enabling devOptions breaks NUXT Devtools and tailwindcss viewer, Enable only if you want to test PWA in dev mode
       type: "module",
     },
     client: {
@@ -121,12 +119,12 @@ export default defineNuxtConfig({
     },
     workbox: {
       disableDevLogs: true,
-      sourcemap: false,
+      sourcemap: true,
       cleanupOutdatedCaches: true,
       globPatterns: [
         "**/*.{js,css,html,png,svg,ico,jpg,jpeg,webp,woff,woff2,ttf,otf,eot}",
       ],
-      maximumFileSizeToCacheInBytes: 5 * 1024 ** 2,
+      maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       runtimeCaching: [
         {
           urlPattern: ({ url }) => {
@@ -200,13 +198,6 @@ export default defineNuxtConfig({
       target: "ESNext",
       commonjsOptions: {
         include: ["node_modules/**"],
-      },
-      rollupOptions: {
-        output: {
-          entryFileNames: `assets/c/[hash].js`,
-          chunkFileNames: `assets/e/[hash].js`,
-          assetFileNames: `assets/[ext]/[name].[ext]`,
-        },
       },
     },
   },

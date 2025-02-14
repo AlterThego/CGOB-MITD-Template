@@ -28,8 +28,6 @@ const profile_name_short = computed(() => {
   }
 });
 
-const avatar = computed(() => $auth.profile?.images?.find((i) => i.primary));
-
 const _menus = computed<AvatarOptions[]>(
   () => props.menus?.filter((m) => toValue(m.hidden) !== true) || [],
 );
@@ -44,7 +42,7 @@ const logout = () => {
 <template>
   <TPopover
     :popper="{ placement: 'bottom-end' }"
-    :ui="{ wrapper: 'flex items-center', width: 'w-screen-95 max-w-48' }"
+    :ui="{ width: 'w-screen-95 max-w-48' }"
   >
     <TButton
       variant="ghost"
@@ -56,7 +54,6 @@ const logout = () => {
     >
       <TAvatar
         :text="profile_name_short"
-        :src="avatar?.url.md"
         size="lg"
         class="bg-gray-200 dark:bg-gray-600"
       />
@@ -65,7 +62,6 @@ const logout = () => {
       <div class="flex items-center gap-2 p-4">
         <TAvatar
           :text="profile_name_short"
-          :src="avatar?.url.md"
           size="lg"
           class="bg-gray-200 dark:bg-gray-600"
         />
