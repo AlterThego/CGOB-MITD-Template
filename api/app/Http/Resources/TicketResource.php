@@ -16,8 +16,9 @@ class TicketResource extends JsonResource
     {
 
         return [
-            'id' => $this->hash,
+            'id' => $this->id,
             'citation_number' => $this->citation_number,
+            'status' => $this->status,
             'violator' => new ViolatorResource($this->violator),
         ];
     }

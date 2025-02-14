@@ -6,7 +6,7 @@
 
     const form = ref({
         citation_number: '',
-        status: '',
+        status: 'active',
         violator: {
             first_name: '',
             middle_name: '',
@@ -25,13 +25,10 @@
     }
 
     function createTicket(){
-    //     $api.post('tickets', {
-    //         citation: '123 ABC',
-    //         violator: {
-
-    //         },
-    //     })
-    //    .then((response) => {
+        $api.post('tickets', form.value)
+        .then((response) => {
+                console.log(response.data)
+        })
     }
     
     onMounted(() => {
@@ -58,6 +55,7 @@
                     <option value="2">Female</option>
                 </select>
             </div>
+            <TButton label="Submit" @click="createTicket"/>
         </div>
         <div class="custom">
             <div class="wrapper">
