@@ -15,11 +15,11 @@ class ViolatorResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->hash,
             'first_name' => $this->first_name,
             'middle_name' => $this->middle_name,
             'last_name' => $this->last_name,
-            'gender' => $this->gender->name,
+            'gender' => new GenderResource($this->gender),
         ];
-      
     }
 }
