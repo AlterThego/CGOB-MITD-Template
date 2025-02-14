@@ -11,10 +11,10 @@ export const usePermitted = () => {
     const perms: Array<string> | undefined = $router.resolve(
       Object.assign({}, { name: routeName }, currentLocation),
     )?.meta?.permissions as Array<string> | undefined;
-    if (perms == (null || undefined)) {
+    if (perms == null || perms == undefined) {
       return true;
     }
-    return $guard.can(perms);
+    return $guard.canAny(...perms);
   };
 
   /**

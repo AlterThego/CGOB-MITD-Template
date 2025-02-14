@@ -6,7 +6,6 @@ export const settings = {
     "users_edit-account",
     "users_edit-permission",
     "users_change-status",
-    "users_give-direct-permissions",
   ],
   "settings-permissions": [],
   "settings-roles": ["roles_list", "roles_add", "roles_edit", "roles_delete"],

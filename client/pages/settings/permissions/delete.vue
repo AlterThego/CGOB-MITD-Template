@@ -16,7 +16,7 @@ const loading = ref(false);
 const deletePermission = () => {
   loading.value = true;
   $api
-    .delete(`/permission/${props.modelValue.id}`)
+    .delete(`/permissions/${props.modelValue.id}`)
     .then((response) => {
       toast.add({
         title: "Success",
@@ -52,7 +52,7 @@ const deletePermission = () => {
       <div
         class="flex flex-auto flex-col items-center text-sunset-500 dark:text-sunset-400"
       >
-        <TIcon name="tabler:alert-triangle-filled" class="h-16 w-16" />
+        <TIcon name="tabler:alert-triangle" class="h-16 w-16" />
         <h3 class="flex-auto text-center text-base font-semibold leading-6">
           Are you sure you want to delete this permission?
         </h3>

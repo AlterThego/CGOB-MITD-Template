@@ -83,6 +83,16 @@ const isActive = (item: MenuOption): boolean => {
           <SBActionButton :expand :menu />
         </template>
       </div>
+      <div
+        class="flex flex-col gap-2 px-4 py-3"
+        :class="{
+          'overflow-y-auto': expand,
+        }"
+      >
+        <template>
+          
+        </template>
+      </div>
     </aside>
   </div>
 </template>

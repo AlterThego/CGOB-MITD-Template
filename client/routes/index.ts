@@ -7,44 +7,7 @@ export * from "./settings";
  * ex.: { path: '/', component: () => import('@/pages/index.vue'), layout: 'auth' }
  */
 
-export default [
-  // Debug
-	{
-		children: [
-			{
-				path: "/tickets",
-				name: "tickets-index",
-				component: () => import("~/pages/tickets/index.vue"),
-				meta: {
-					title: "Tickets: Index",
-				},
-			},
-			{
-				path: "/tickets/view/:id?",
-				name: "tickets-view",
-				component: () => import("~/pages/tickets/view.vue"),
-				meta: {
-					title: "Tickets: View",
-				},
-			},
-			/*{
-				path: "/tickets/update",
-				name: "tickets-update",
-				component: () => import("@/pages/ticket/Update.vue"),
-				meta: {
-					title: "Tickets: Update",
-				},
-			},
-			{
-				path: "/tickets/delete",
-				name: "tickets-delete",
-				component: () => import("@/pages/ticket/Delete.vue"),
-				meta: {
-					title: "Tickets: Delete",
-				},
-			},*/
-		],
-	},
+export default computed(() => [
   {
     path: "/t",
     name: "tests",
@@ -57,30 +20,21 @@ export default [
     path: "/",
     name: "home",
     component: () => import("@/pages/index.vue"),
-    redirect: {
-      name: "dashboard",
-    },
     meta: {
       requiresAuth: true,
     },
-    children: [
-      {
-        path: "/dashboard",
-        name: "dashboard",
-        component: () => import("@/pages/dashboard/index.vue"),
-        meta: {
-          title: "Dashboard",
-          icon: "tabler:layout-dashboard",
-        },
-      },
-    ],
+    children: [],
   },
   {
     path: "/settings",
     name: "settings",
     component: () => import("@/pages/settings/index.vue"),
+    redirect: {
+      name: "404",
+    },
     meta: {
       requiresAuth: true,
+      requiresVerified: true,
       permissions: Object.values(settingsPerms).flat(),
       title: "Settings",
       icon: "tabler:settings",
@@ -119,6 +73,21 @@ export default [
     ],
   },
   {
+    meta: { layout: "profile" },
+    children: [
+      {
+        path: "/profile",
+        name: "profile",
+        component: () => import("@/pages/profile/index.vue"),
+        meta: {
+          requiresAuth: true,
+          title: "Account",
+          icon: "tabler:user",
+        },
+      },
+    ],
+  },
+  {
     meta: { layout: "auth" },
     children: [
       {
@@ -139,9 +108,21 @@ export default [
           requiresAuth: false,
         },
       },
+
+      {
+        path: "/email/verify/:id/:hash",
+        name: "verify",
+        component: () => import("@/pages/auth/verify.vue"),
+        meta: {
+          title: "Verify Email",
+          requiresAuth: true,
+          requiresVerified: false,
+        },
+      },
+
       {
         path: "/profile/update",
-        name: "update-update",
+        name: "update-profile",
         component: () => import("@/pages/auth/updateProfile.vue"),
         meta: {
           title: "Update Profile",
@@ -167,6 +148,7 @@ export default [
         meta: {
           title: "Unverified Account!",
           requiresAuth: true,
+          requiresVerified: false,
         },
       },
       {
@@ -195,4 +177,4 @@ export default [
       },
     ],
   },
-];
+]);

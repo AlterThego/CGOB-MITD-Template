@@ -1,17 +1,24 @@
-import type { Profile, StringList, User } from "~/types";
+import type { StringList } from "~/types";
+import type {
+  Profile,
+  User,
+  ProfileImage,
+  UserRole,
+} from "~/types/models/users";
 
 export const useAuthStore = defineStore("auth", () => {
-  const email = ref<string | null>(null);
-  const username = ref<string | null>(null);
+  const email = ref<string | null>();
+  const username = ref<string | null>();
   const active = ref<boolean>(false);
-  const verified = ref<string | null>(null);
-  const roles = ref<StringList>([]);
+  const verified = ref<string | null>();
+  const roles = ref<Array<Omit<UserRole, "id">>>([]);
   const permissions = ref<StringList>([]);
+  const images = ref<Array<ProfileImage>>([]);
 
-  const profile = ref<Profile | null>(null);
+  const profile = ref<Profile | null>();
 
   const isLoggedIn = computed(() => username.value !== null);
-  const hasProfileName = computed(() => profile.value?.full_name !== null);
+  const hasProfileName = computed(() => !!profile.value?.full_name);
 
   const reset = () => {
     email.value = null;
@@ -23,16 +30,17 @@ export const useAuthStore = defineStore("auth", () => {
     profile.value = null;
   };
 
-  const _setUser = (data: User) => {
+  const setUser = (data: User) => {
     email.value = data.email;
     username.value = data.username;
     active.value = data.active;
     verified.value = data.verified;
-    roles.value = (data.roles as StringList) ?? [];
+    roles.value = (data.roles as Array<Omit<UserRole, "id">>) ?? [];
     permissions.value = (data.permissions as StringList) ?? [];
     profile.value = {
       ...data.profile,
     } as Profile;
+    images.value = (data.profile?.images as Array<ProfileImage>) ?? [];
   };
 
   const login = async (payload: Object) => {
@@ -41,7 +49,7 @@ export const useAuthStore = defineStore("auth", () => {
       $api
         .post("/auth/login", payload)
         .then((res) => {
-          _setUser(res.data.data);
+          setUser(res.data.data);
           resolve(res);
         })
         .catch((error) => {
@@ -75,7 +83,7 @@ export const useAuthStore = defineStore("auth", () => {
       $api
         .get("/auth/permissions")
         .then((res) => {
-          _setUser(res.data.data);
+          setUser(res.data.data);
           resolve(res);
         })
         .catch((error) => {
@@ -97,6 +105,7 @@ export const useAuthStore = defineStore("auth", () => {
     login,
     logout,
     getPermissions,
+    setUser,
     reset,
   };
 });

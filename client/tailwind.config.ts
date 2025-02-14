@@ -8,8 +8,8 @@ import {
   backgroundImage,
   backgroundPosition,
   backgroundSize,
-  twUtilities,
 } from "./config/tw";
+import twScrollBar from "tailwind-scrollbar";
 
 export default {
   content: [
@@ -63,5 +63,7 @@ export default {
     },
   },
   safelist: ["iconify"],
-  plugins: [twUtilities],
+  plugins: [
+    twScrollBar({ nocompatible: true, preferredStrategy: "pseudoelements" }),
+  ],
 } satisfies Config;

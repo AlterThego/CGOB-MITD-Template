@@ -39,23 +39,6 @@
       @apply border-l border-dark-100 dark:border-gray-700;
     }
   }
-
-  .weather-widget {
-    &--temp {
-      background: linear-gradient(267deg, #ed895b 1.51%, #eeb855 118.08%);
-    }
-    &--speed {
-      background: linear-gradient(267deg, #2ab589 1.51%, #44bff3 118.08%);
-    }
-    &--humidity {
-      background: linear-gradient(
-          90deg,
-          rgba(0, 157, 255) 0%,
-          rgba(44, 103, 212) 100%
-        ),
-        #fff;
-    }
-  }
   .checkbox-label:has(input:checked) {
     @apply border-primary-500 bg-primary-500/10;
   }
@@ -68,5 +51,9 @@
     &::-webkit-inner-spin-button {
       appearance: none;
     }
+  }
+
+  .table-hover {
+    @apply hover:bg-gray-200;
   }
 }

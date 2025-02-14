@@ -19,18 +19,20 @@ export default defineAppConfig({
       },
       card: {
         base: "border flex flex-col border-dark-200 dark:border-steel-700",
-        divide: "",
+        divide: "dark:divide-gray-400/25",
         background: "bg-gray-50 dark:bg-gray-800",
-        ring: "",
         rounded: "rounded",
-        shadow: "",
+        ring: "dark:ring-gray-600",
         body: {
           base: "flex-auto",
-          padding: "",
+          padding: "px-3 py-2 sm:p-4",
         },
         header: {
           base: "flex items-center justify-between py-2",
-          padding: "",
+          padding: "px-3 py-2 sm:p-4",
+        },
+        footer: {
+          padding: "px-3 py-2 sm:p-4",
         },
       },
       container: {
@@ -39,7 +41,7 @@ export default defineAppConfig({
         constrained: "",
       },
       input: {
-        base: "relative block max-w-[400px] disabled:cursor-not-allowed disabled:opacity-75 focus:outline-none border-0 !shadow-none bg-gray-50 dark:bg-gray-700",
+        base: "relative block disabled:cursor-not-allowed disabled:opacity-75 focus:outline-none border-0 !shadow-none bg-gray-50 dark:bg-gray-700",
         rounded: "rounded",
         color: {
           white: {
@@ -51,6 +53,18 @@ export default defineAppConfig({
           lg: "text-base",
           xl: "text-lg",
         },
+      },
+      select: {
+        wrapper: "max-w-[400px]",
+        rounded: "rounded",
+        color: {
+          white: {
+            outline: "bg-gray-50 dark:bg-gray-700",
+          },
+        },
+      },
+      selectMenu: {
+        background: "bg-gray-50 dark:bg-gray-700",
       },
       textarea: {
         base: "relative block max-w-[400px] disabled:cursor-not-allowed disabled:opacity-75 focus:outline-none border-0 !shadow-none bg-gray-50 dark:bg-gray-700",
@@ -92,12 +106,27 @@ export default defineAppConfig({
       pagination: {
         wrapper: "flex items-center gap-1",
         base: "!border-none",
-        rounded: "!border-none !border-transparent min-w-[32px] justify-center",
+        rounded:
+          "!border-none !border-transparent min-w-[32px] justify-center !rounded-md",
         default: {
           activeButton: {
-            variant: "outline",
+            variant: "solid",
+            color: "primary",
+          },
+          inactiveButton: {
+            variant: "solid",
+            color: "gray",
+          },
+          prevButton: {
+            color: "gray",
+          },
+          nextButton: {
+            color: "gray",
           },
         },
+      },
+      popover: {
+        background: "bg-gray-50 dark:bg-gray-700",
       },
     },
     uiIcons,

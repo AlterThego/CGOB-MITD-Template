@@ -27,11 +27,11 @@ const crumbs = computed<Array<BreadcrumbLink>>(() =>
       <TopNav fixed :avatarOptions="aMenus">
         <TButton
           v-if="!!$route.matched.find((r) => r.name === 'settings')"
-          label="Dashboard"
-          icon="tabler:layout-dashboard"
+          label="Home"
+          icon="tabler:home"
           color="gray"
           variant="ghost"
-          :to="{ name: 'dashboard' }"
+          :to="{ name: 'home' }"
         />
       </TopNav>
       <TPageTitle

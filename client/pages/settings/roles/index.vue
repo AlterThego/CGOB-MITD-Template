@@ -11,15 +11,18 @@ const $guard = useGuard();
 
 type ModalType = "Editor" | "Delete";
 
-const { pagination, searcher } = useSearcher({
-  api: "/roles",
-  limit: 9,
-  onPageChange: () => getRoles(),
-});
+const { pagination, params, loading, search } = useSearcher<{ search: string }>(
+  {
+    api: "/roles",
+    limit: 9,
+    appendToUrl: true,
+    onSearch: (response) => {
+      roles.value = response.data.data as Array<RoleItem>;
+    },
+  },
+);
 
 const roles = ref<Array<RoleItem>>([]);
-const search = ref<string>();
-const loading = ref(false);
 const modal = ref<{
   show: boolean;
   data: Partial<RoleItem> | null;
@@ -30,39 +33,34 @@ const modal = ref<{
   type: "Editor",
 });
 
-const columns = ref([
-  {
-    key: "id",
-    label: "ID",
-  },
-  {
-    key: "name",
-    label: "Name",
-  },
-  {
-    key: "description",
-    label: "Description",
-  },
-  {
-    key: "date",
-    label: "Created At",
-  },
-  {
-    key: "actions",
-    label: "Actions",
-  },
-]);
-
-const getRoles = () => {
-  loading.value = true;
-  searcher({ search: search.value })
-    .then((res) => {
-      roles.value = res.data.data as Array<RoleItem>;
-    })
-    .finally(() => {
-      loading.value = false;
+const columns = computed(() => {
+  let cols = [
+    {
+      key: "id",
+      label: "ID",
+    },
+    {
+      key: "name",
+      label: "Name",
+    },
+    {
+      key: "description",
+      label: "Description",
+    },
+    {
+      key: "date",
+      label: "Created At",
+    },
+  ];
+  if ($guard.canAny("roles_edit", "roles_add", "roles_delete")) {
+    cols.push({
+      key: "actions",
+      label: "Actions",
     });
-};
+  }
+
+  return cols;
+});
 
 const openModal = (
   data: RoleItem | null = null,
@@ -73,13 +71,28 @@ const openModal = (
   modal.value.show = true;
 };
 
-const getActions = (role: RoleItem) => {
+const getActions = (
+  role: RoleItem,
+): Array<{
+  label: string;
+  icon: string;
+  click: () => void;
+  disabled?: boolean;
+}> => {
   let acts = [];
   if ($guard.can("roles_add")) {
     acts.push({
       label: "Duplicate",
       icon: "tabler:copy",
       click: () => duplicateRole(role),
+    });
+  }
+
+  if ($guard.can("roles_edit")) {
+    acts.push({
+      label: "Edit",
+      icon: "tabler:edit",
+      click: () => openModal(role, "Editor"),
     });
   }
 
@@ -91,9 +104,8 @@ const getActions = (role: RoleItem) => {
       click: () => openModal(role, "Delete"),
     });
   }
-  return [acts];
+  return acts;
 };
-
 const duplicateRole = (data: RoleItem) => {
   modal.value.data = {
     ...data,
@@ -117,7 +129,7 @@ const onDelete = (data: RoleItem) => {
 };
 
 onMounted(() => {
-  getRoles();
+  search();
 });
 </script>
 
@@ -139,7 +151,7 @@ onMounted(() => {
         <div class="flex flex-auto items-center justify-between px-3 py-3.5">
           <div class="flex items-center gap-4">
             <TInput
-              v-model="search"
+              v-model="params.search"
               size="md"
               color="white"
               trailing-icon="tabler:search"
@@ -149,7 +161,7 @@ onMounted(() => {
                 icon: { trailing: { pointer: '', padding: { md: 'px-0' } } },
               }"
               class="flex-auto"
-              @keyup.enter="getRoles"
+              @keyup.enter="search"
             >
               <template #trailing>
                 <TButton
@@ -159,7 +171,7 @@ onMounted(() => {
                   size="md"
                   variant="link"
                   class="px-3"
-                  @click="getRoles"
+                  @click="search"
                 />
               </template>
             </TInput>
@@ -195,14 +207,16 @@ onMounted(() => {
           {{ $dayjs(row.date).format("DD MMM YYYY") }}
         </template>
 
-        <template
-          v-if="$guard.can(['roles_edit', 'roles_delete'])"
-          #actions-data="{ row }"
-        >
-          <div class="flex items-center gap-2">
+        <template #actions-data="{ row }">
+          <div
+            v-if="getActions(row).length > 0"
+            class="flex items-center gap-2"
+          >
             <TButton
-              v-if="$guard.can('roles_edit')"
-              icon="tabler:edit"
+              v-for="act in getActions(row)"
+              :key="act.label"
+              :icon="act.icon"
+              :disabled="act.disabled"
               size="md"
               color="gray"
               variant="ghost"
@@ -214,30 +228,8 @@ onMounted(() => {
                   },
                 },
               }"
-              @click="openModal(row, 'Editor')"
+              @click="act.click()"
             />
-            <TDropdown
-              v-if="getActions(row).length > 0"
-              :items="getActions(row)"
-              :ui="{
-                wrapper: '!bg-inherit',
-              }"
-            >
-              <TButton
-                icon="tabler:dots-vertical"
-                color="gray"
-                size="md"
-                variant="ghost"
-                :ui="{
-                  color: {
-                    gray: {
-                      ghost:
-                        'hover:bg-gray-200 dark:hover:bg-gray-900 rounded-full',
-                    },
-                  },
-                }"
-              />
-            </TDropdown>
           </div>
         </template>
       </TTable>
@@ -255,24 +247,20 @@ onMounted(() => {
     </TCard>
 
     <TModal
-      v-if="$guard.can(['roles_add', 'roles_edit', 'roles_delete'])"
+      v-if="$guard.canAny('roles_add', 'roles_edit', 'roles_delete')"
       v-model="modal.show"
       prevent-close
       :ui="{
-        width: [
-          'w-screen-95',
-          modal.type === 'Delete' && 'sm:max-w-sm',
-          modal.type === 'Editor' && 'sm:max-w-xl',
-        ],
+        width: `w-screen-95 ${modal.type === 'Delete' ? 'sm:max-w-sm' : 'sm:max-w-xl'}`,
         margin: '',
       }"
     >
       <Editor
         v-if="
-          modal.type === 'Editor' && $guard.can(['roles_add', 'roles_edit'])
+          modal.type === 'Editor' && $guard.canAny('roles_add', 'roles_edit')
         "
         v-model="modal.data"
-        @update:modelValue="onSave"
+        @update:modelValue="onSave($event as RoleItem)"
         @close="modal.show = false"
       />
 

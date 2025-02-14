@@ -1,44 +1,6 @@
-import { _0 } from "#tailwind-config/theme/backdropBlur";
-import { default as axios, type AxiosResponse } from "axios";
+import { type AxiosResponse } from "axios";
 import defu from "defu";
-import type { HasKey } from "~/types";
-
-export type UploadOptions = {
-  api: string;
-  checkIntegrity?: boolean;
-
-  sleep?: {
-    long: number;
-    short: number;
-    interval: number;
-  };
-};
-
-export type FileItem = HasKey & {
-  id: string;
-  file: File;
-  name: string;
-  status: "pending" | "uploading" | "complete" | "error" | "cancelled";
-  state?: HasKey & {
-    uid: string;
-    part: number;
-    parts: number;
-    length: number;
-    progress: number;
-  };
-  upload: {
-    timer: NodeJS.Timeout | null;
-    speed: number;
-    start: number;
-    ellapsed: number;
-    loaded: number;
-    timeRemaining: number;
-    progress: number;
-  };
-  remove: (force: boolean) => void;
-  matchedHash?: boolean;
-  hashing: boolean;
-};
+import type { UploadOptions, FileItem } from "~/types/composables/useUploader";
 
 export const useUploader = (
   options?: UploadOptions | ComputedRef<UploadOptions>,
@@ -47,6 +9,7 @@ export const useUploader = (
   const { $api } = useNuxtApp();
 
   const defaults = {
+    multiple: false,
     sleep: {
       long: 1500,
       short: 250,
@@ -63,11 +26,11 @@ export const useUploader = (
     files.value.some((file) => file.status === "uploading"),
   );
 
-  const fileBrowser = (accept: string = "*", multiple: boolean = false) => {
+  const fileBrowser = (accept: string = "*") => {
     if (!uploading.value) {
       const { openFileBrowser } = useFileBrowser({
         accept,
-        multiple,
+        multiple: _options.value.multiple,
         onChange: (e: Event) => {
           if (!!e.target) {
             addFile((e.target as HTMLInputElement).files!);
@@ -86,14 +49,22 @@ export const useUploader = (
     unique: boolean = false,
   ): Array<string> => {
     if (!uploading.value) {
+      if (!_options.value.multiple) {
+        files.value = [];
+      }
       if (file instanceof File) {
         files.value.push(_createUploadItem(file));
       } else if (_iterable(file)) {
-        Array.from(file).forEach((f: File) => {
-          if (!unique || (unique && !_fileExists(f))) {
-            files.value.push(_createUploadItem(f));
-          }
-        });
+        const fs = Array.from(file);
+        if (_options.value.multiple) {
+          fs.forEach((f: File) => {
+            if (!unique || (unique && !_fileExists(f))) {
+              files.value.push(_createUploadItem(f));
+            }
+          });
+        } else {
+          files.value.push(_createUploadItem(fs[0]));
+        }
       }
     }
     return files.value.map((file) => file.id);
@@ -236,7 +207,6 @@ export const useUploader = (
             item.file.size >= (item.state?.length ?? 0) &&
             item.state?.parts! > 5
           ) {
-            console.log("sleeping");
             await _sleeper(50);
           }
         }

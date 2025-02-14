@@ -67,17 +67,16 @@ export const guard = async (
     } else if (to.meta.requiresAuth === false && $auth.isLoggedIn) {
       reject({ name: "home" }); // Redirect to the home page when signed in.
     } else if (toRequiresVerified && !$auth.verified) {
-      reject({ name: "verify", query: { redirect: to.fullPath } });
+      reject({ name: "unverified", query: { redirect: to.fullPath } });
     } else if (
       $auth.isLoggedIn &&
       !$auth.hasProfileName &&
-      to.name !== "update-profile" &&
-      guard
+      to.name !== "update-profile"
     ) {
       reject({ name: "update-profile", query: { redirect: to.fullPath } });
     } else {
       if (!!to.meta.permissions) {
-        if (!guard.can(to.meta.permissions as string | string[])) {
+        if (!guard.canAny(...(to.meta.permissions as string[]))) {
           if (!!to.meta.redirect) {
             reject(to.meta.redirect);
           } else {

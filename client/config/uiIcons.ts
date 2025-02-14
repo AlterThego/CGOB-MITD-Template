@@ -1,4 +1,4 @@
-const loadingIcon = "i-tabler-loader-2";
+export const loadingIcon: string = "i-tabler-loader-2";
 
 export default {
   button: {
