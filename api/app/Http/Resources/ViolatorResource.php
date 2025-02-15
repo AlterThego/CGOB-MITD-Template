@@ -20,7 +20,7 @@ class ViolatorResource extends JsonResource
             'middle_name' => $this->middle_name,
             'last_name' => $this->last_name,
             'gender' => $this->gender->name,
-            'full_name' => $this->full_name,
         ];
+
     }
 }

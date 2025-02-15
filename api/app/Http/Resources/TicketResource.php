@@ -20,8 +20,6 @@ class TicketResource extends JsonResource
             'citation_number' => $this->citation_number,
             'status' => $this->status,
             'violator' => new ViolatorResource($this->violator),
-            'created_at' => $this->created_at->format('Y-m-d'),
-            
         ];
     }
 }
