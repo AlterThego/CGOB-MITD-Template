@@ -24,7 +24,7 @@ Route::prefix("tickets")->group(function() {
     Route::post("", [TicketController::class, "create"])->name("tickets.create");
     Route::put("{ticket}", [TicketController::class, "update"])->name("tickets.update");
     Route::delete("{ticket}", [TicketController::class, "delete"])->name("tickets.delete");
-    Route::patch("{ticket}", [TicketController::class, "retore"])->name("tickets.restore");
+    Route::patch("{ticket}", [TicketController::class, "restore"])->name("tickets.restore");
 });
 
 Route::prefix("violators")->group(function() {
