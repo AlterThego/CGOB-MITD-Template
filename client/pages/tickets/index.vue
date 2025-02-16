@@ -28,6 +28,7 @@
         $api.post('tickets', form.value)
         .then((response) => {
                 console.log(response.data)
+                console.log("Im making a ticket yehey")
         })
     }
     
