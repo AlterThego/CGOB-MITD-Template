@@ -27,6 +27,15 @@ export default computed(() => [
 					title: "Tickets: View",
 				},
 			},
+
+      {
+				path: "/tickets/view/:id?",
+				name: "tickets-view",
+				component: () => import("~/pages/tickets/view.vue"),
+				meta: {
+					title: "Tickets: View",
+				},
+			},
 			/*{
 				path: "/tickets/update",
 				name: "tickets-update",
