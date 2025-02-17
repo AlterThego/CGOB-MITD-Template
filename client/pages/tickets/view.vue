@@ -31,6 +31,18 @@ function showTicket() {
         })
 }
 
+function updateTicket() {
+    $api.put(`tickets/${route.params.id}`)
+    // .then((response) => {
+    //     ticket.value = response.data
+    // })
+
+    toast.add({
+        title: 'Success',
+        description: 'The ticket was updated successfully.',
+    })
+}
+
 function deleteTicket() {
     $api.delete(`tickets/${route.params.id}`)
         .then(() => {
@@ -42,7 +54,31 @@ function deleteTicket() {
 onMounted(() => {
     showTicket()
 })
+
+// UpdateTicketModal
+const isOpenUpdateTicket = ref(false);
+
+// Citation number max values
+const citationMaxLength = 11
+
+// Genders
+const genders = [
+    { id: 1, name: 'Male' },
+    { id: 2, name: 'Female' },
+    { id: 3, name: 'LGBTQQIP2SAA' },
+    { id: 4, name: 'Attack Helicopter' },
+]
+
+// Ticket statuses
+const statuses = [
+    { id: 1, name: 'Active' },
+    { id: 2, name: 'Pending' },
+    { id: 3, name: 'Disposed' },
+]
+
 </script>
+
+
 
 
 
@@ -117,6 +153,10 @@ onMounted(() => {
                         :to="{ name: 'tickets-index' }">
                         Back to List
                     </TButton>
+                    <TButton color="primary" variant="outline" icon="i-heroicons-pencil-square-20-solid"
+                        @click="isOpenUpdateTicket = true">
+                        Update
+                    </TButton>
                     <TButton color="red" icon="i-heroicons-trash" @click="deleteTicket">
                         Delete
                     </TButton>
@@ -124,6 +164,88 @@ onMounted(() => {
                         Restore
                     </TButton>
                 </div>
+
+                <TModal v-model="isOpenUpdateTicket" prevent-close>
+                    <TCard
+                        :ui="{ base: 'h-full flex flex-col', ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
+                        <div clas="border-b border">
+                            <div class="flex items-center justify-between border-b pb-2">
+                                <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+                                    Update Ticket
+                                </h3>
+                                <TButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1"
+                                    @click="isOpenUpdateTicket = false" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-x-4">
+                            <div class="col-span py-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Citation Number
+                                </label>
+                                <TInput :maxlength="citationMaxLength" class="w-full" placeholder="12345678900"
+                                    :model-value="ticket?.citation_number">
+                                    <template #trailing>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400"></span>
+                                    </template>
+                                </TInput>
+                                <!-- <TInput placeholder="John" v-model="form.violator.first_name" /> -->
+                            </div>
+
+                            <div class="col-span py-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    First Name
+                                </label>
+                                <TInput placeholder="John" :model-value="ticket?.violator.first_name" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-x-4">
+                            <div class="col-span py-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Middle Name
+                                </label>
+                                <TInput placeholder="Michael" :model-value="ticket?.violator.middle_name" />
+                            </div>
+
+                            <div class="col-span py-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Last Name
+                                </label>
+                                <TInput placeholder="Doe" :model-value="ticket?.violator.last_name" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-x-4">
+                            <div class="col-span py-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Gender
+                                </label>
+                                <TInputMenu :options="genders" placeholder="Select a gender" by="id"
+                                    option-attribute="name" :search-attributes="['name']"
+                                    :model-value="ticket?.violator.gender">
+                                </TInputMenu>
+                            </div>
+
+                            <div class="col-span py-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Status
+                                </label>
+                                <TInputMenu :options="statuses" placeholder="Set the status" by="id"
+                                    option-attribute="name" :search-attributes="['name']" :model-value="ticket?.status">
+                                </TInputMenu>
+                            </div>
+                        </div>
+
+
+
+                        <div class="flex w-full justify-end px-4">
+                            <div class="py-2">
+                                <TButton label="Submit" @click="updateTicket()" />
+                            </div>
+                        </div>
+                    </TCard>
+                </TModal>
+
             </template>
         </TCard>
     </div>
