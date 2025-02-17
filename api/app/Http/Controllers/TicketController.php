@@ -85,7 +85,7 @@ class TicketController extends Controller
 
 
         $fields = $request->validated();
-        // dd($fields);
+        dd($fields);
 
         $violator = Violator::create($fields['violator']);
 

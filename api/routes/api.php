@@ -16,6 +16,7 @@ use App\Http\Controllers\LogController;
 
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\ViolationController;
 use App\Http\Controllers\ViolatorController;
 
 Route::prefix("tickets")->group(function() {
@@ -35,6 +36,16 @@ Route::prefix("violators")->group(function() {
     Route::delete("{violator}", [ViolatorController::class, "delete"])->name("violators.delete");
     Route::patch("{violator}", [ViolatorController::class, "retore"])->name("violators.restore");
 });
+
+Route::prefix("violations")->group(function() {
+    Route::get("", [ViolationController::class, "list"])->name("violations.list");
+    Route::get("{violation}", [ViolationController::class, "show"])->name("violations.name");
+    Route::post("", [ViolationController::class, "create"])->name("violations.create");
+    Route::put("{violation}", [ViolationController::class, "update"])->name("violations.update");
+    Route::delete("{violation}", [ViolationController::class, "delete"])->name("violations.delete");
+    Route::patch("{violation}", [ViolationController::class, "restore"])->name("violations.restore");
+});
+
 
 Route::middleware(["auth:sanctum", "throttle:90,1", "isActive"])->group(function () {
     Route::middleware(["verified", "SPAOnly"])->group(function () {

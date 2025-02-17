@@ -29,13 +29,14 @@ export default computed(() => [
 			},
 
       {
-				path: "/tickets/view/:id?",
-				name: "tickets-view",
-				component: () => import("~/pages/tickets/view.vue"),
+				path: "/violations",
+				name: "violations-index",
+				component: () => import("@/pages/violations/index.vue"),
 				meta: {
-					title: "Tickets: View",
+					title: "Violations: Index",
 				},
 			},
+
 			/*{
 				path: "/tickets/update",
 				name: "tickets-update",
