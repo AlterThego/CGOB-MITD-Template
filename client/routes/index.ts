@@ -52,6 +52,15 @@ export default computed(() => [
 					title: "Tickets: Delete",
 				},
 			},*/
+
+      {
+				path: "/tickets/updateee",
+				name: "tickets-update",
+				component: () => import("~/pages/tickets/update.vue"),
+				meta: {
+					title: "Tickets: Index",
+				},
+			},
 		],
 	},
   {

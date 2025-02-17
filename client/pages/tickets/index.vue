@@ -60,11 +60,8 @@ function createTicket() {
         // })
 
         .then(() => {
-            router.push('/tickets').then(() => {
-                //window.location.reload();
-                useCreateToast();
-            });
-
+            useCreateToast()
+            router.push('/tickets')
         })
 }
 
@@ -163,20 +160,19 @@ const statuses = [
 ]
 
 const ticketSchema = z.object({
-    citation_number: z.string()
-        .min(13, 'Must be in the format 123-4567-8910')
-        .regex(/^\d{3}-\d{4}-\d{4}$/, 'Must match format 123-4567-8910'),
+    citation_number: z.string().regex(/^\d{3}-\d{4}-\d{4}$/, "Invalid citation number format is 123-4567-8910"),
     first_name: z.string(),
-    middle_name: z.string(),
-    last_name: z.string(),
-    gender_id: z.number(),
-    status: z.string()
-
+    violator: z.object({
+        first_name: z.string(),
+        middle_name: z.string().optional(), 
+        last_name: z.string().optional(),
+        gender_id: z.number(),
+    }),
+ 
+    status: z.string().min(1)
 });
 
 type TicketSchema = z.output<typeof ticketSchema>
-
-
 
 </script>
 
@@ -224,71 +220,6 @@ type TicketSchema = z.output<typeof ticketSchema>
                 </div>
 
 
-                <!-- <div class="grid grid-cols-2 gap-x-4">
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Citation Number
-                        </label>
-                        <TInput v-model="form.citation_number" :maxlength="maxLength" class="w-full"
-                            placeholder="12345678900">
-                            <template #trailing>
-                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ form.citation_number.length
-                                    }}/{{ maxLength
-                                    }}</span>
-                            </template>
-                        </TInput>
-                    </div>
-
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            First Name
-                        </label>
-                        <TInput placeholder="John" v-model="form.violator.first_name" />
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-x-4">
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Middle Name
-                        </label>
-                        <TInput placeholder="Michael" v-model="form.violator.middle_name" />
-                    </div>
-
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Last Name
-                        </label>
-                        <TInput placeholder="Doe" v-model="form.violator.last_name" />
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-x-4">
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Gender
-                        </label>
-                        <TInputMenu v-model="form.violator.gender_id" :options="genders" placeholder="Select a gender"
-                            by="id" option-attribute="name" :search-attributes="['name']">
-                        </TInputMenu>
-                    </div>
-
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Status
-                        </label>
-                        <TInputMenu v-model="form.status" :options="statuses" placeholder="Set the status" by="id"
-                            option-attribute="name" :search-attributes="['name']">
-                        </TInputMenu>
-                    </div>
-                </div>
-
-                <div class="flex w-full justify-end px-4">
-                    <div class="py-2">
-                        <TButton label="Submit" @click="createTicket" />
-                    </div>
-                </div> -->
-
                 <TForm :schema="ticketSchema" :state="form" class="space-y-4z">
 
                     <div class="flex-row">
@@ -309,11 +240,11 @@ type TicketSchema = z.output<typeof ticketSchema>
 
                         <!-- Removed property name="" for now -->
                         <div class="flex justify-between gap-x-4 mb-6">
-                            <TFormGroup class="w-full" label="First Name">
+                            <TFormGroup class="w-full" label="First Name" name="violator.first_name">
                                 <TInput v-model="form.violator.first_name" class="w-full" placeholder="John"
                                     autocomplete="off" />
                             </TFormGroup>
-                            <TFormGroup class="w-full" label="Middle Name">
+                            <TFormGroup class="w-full" label="Middle Name" name="violator.middle_name">
                                 <TInput v-model="form.violator.middle_name" class="w-full" placeholder="Michael"
                                     autocomplete="off" />
                             </TFormGroup>
