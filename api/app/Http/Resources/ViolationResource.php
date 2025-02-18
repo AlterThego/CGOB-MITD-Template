@@ -21,8 +21,8 @@ class ViolationResource extends JsonResource
             'penalty' => $this->penalty,
             'ordinance' => $this->ordinance,
             'fine' => $this->fine,
+            'deleted_at' => optional($this->deleted_at)->format('Y-m-d'),
             'created_at' => $this->created_at->format('Y-m-d'),
-
         ];
     }
 }

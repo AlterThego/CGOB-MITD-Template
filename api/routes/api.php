@@ -34,7 +34,7 @@ Route::prefix("violators")->group(function() {
     Route::post("", [ViolatorController::class, "create"])->name("violators.create");
     Route::put("{violator}", [ViolatorController::class, "update"])->name("violators.update");
     Route::delete("{violator}", [ViolatorController::class, "delete"])->name("violators.delete");
-    Route::patch("{violator}", [ViolatorController::class, "retore"])->name("violators.restore");
+    Route::patch("{violator}", [ViolatorController::class, "restore"])->name("violators.restore");
 });
 
 Route::prefix("violations")->group(function() {

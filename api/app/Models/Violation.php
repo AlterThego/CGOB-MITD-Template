@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Violation extends AppModel {
     use SoftDeletes;
-    
-    protected $fillable = ['name', 'penalty', 'ordinance', 'fine'];
 
+    protected $fillable = ['name', 'penalty', 'ordinance', 'fine'];
     /**
     * Get the attributes that should be cast.
     *

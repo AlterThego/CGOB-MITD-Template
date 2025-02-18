@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
 
-
 const { $api } = useNuxtApp();
 const router = useRouter();
 const violations = ref([])
 const toast = useToast()
 
 const columns = [{
+    key: 'id',
+    label: 'ID'
+}, {
     key: 'name',
     label: 'Name'
 }, {
@@ -19,50 +21,38 @@ const columns = [{
 }, {
     key: 'fine',
     label: 'Fine'
+},
+{
+    key: 'deleted_at',
+    label: 'Date Deleted'
 }, {
     key: 'actions'
 }];
 
-type Ticket = {
+type Violation = {
     id: number
     name: string
     penalty: string
     ordinance: string
     fine: number
     created_at: string
+    deleted_at: string
 }
 
-const form = ref({
-    name: '',
-    penalty: '',
-    ordinance: '',
-    fine: '',
-})
-
-const items = (row: Ticket) => [
+const items = (row: Violation) => [
     [{
-        label: 'Edit',
-        icon: 'i-heroicons-pencil-square-20-solid',
-        click: () => console.log('Edit', row.id)
-    }, {
-        label: 'Duplicate',
-        icon: 'i-heroicons-document-duplicate-20-solid'
-    }], [{
-        label: 'Archive',
-        icon: 'i-heroicons-archive-box-20-solid'
-    }, {
-        label: 'Move',
-        icon: 'i-heroicons-arrow-right-circle-20-solid'
-    }], [{
-        label: 'Delete',
-        icon: 'i-heroicons-trash-20-solid'
+        label: 'View',
+        icon: 'i-heroicons-view-columns-20-solid',
+        click: () => {
+            // console.log('Pushing to Ticket View:', row.id)
+            router.push({ name: 'violations-view', params: { id: row.id } });
+        }
     }]
 ]
 
 const CreateModal = defineAsyncComponent(() =>
     import('@/components/violations/create-modal.vue')
-);
-
+)
 // LIST
 function getViolationsList() {
     $api.get('violations')
@@ -75,26 +65,6 @@ onMounted(() => {
     getViolationsList();
 })
 
-// Create Toast
-function useCreateToast() {
-    toast.add({
-        title: 'Success',
-        description: 'The ticket was created successfully.',
-    })
-}
-
-// CreateTicket
-function createTicket() {
-    $api.post('tickets', form.value)
-        .then(() => {
-            useCreateToast()
-            router.push("")
-        })
-}
-
-
-
-
 </script>
 
 <template>
@@ -102,7 +72,7 @@ function createTicket() {
         <TCard>
             <template #header>
                 <h1>Violations</h1>
-                <CreateModal />
+                <CreateModal/>
             </template>
 
 
@@ -117,7 +87,7 @@ function createTicket() {
 
 
             <template #footer>
-                <Placeholder class="h-8" />
+
             </template>
         </TCard>
     </div>

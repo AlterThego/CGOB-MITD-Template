@@ -37,6 +37,15 @@ export default computed(() => [
 				},
 			},
 
+      {
+				path: "/violations/view/:id?",
+				name: "violations-view",
+				component: () => import("~/pages/violations/view.vue"),
+				meta: {
+					title: "Violations: View",
+				},
+			},
+
 			/*{
 				path: "/tickets/update",
 				name: "tickets-update",

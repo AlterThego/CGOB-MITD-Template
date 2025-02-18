@@ -4,7 +4,7 @@ namespace App\Http\Requests\ViolationRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ShowViolationRequest extends FormRequest
+class DeleteViolationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,6 @@ class ShowViolationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
         ];
     }
 }
