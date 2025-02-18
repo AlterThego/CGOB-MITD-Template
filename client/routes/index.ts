@@ -14,7 +14,7 @@ export default computed(() => [
 			{
 				path: "/tickets",
 				name: "tickets-index",
-				component: () => import("~/pages/tickets/index.vue"),
+				component: () => import("@/pages/tickets/index.vue"),
 				meta: {
 					title: "Tickets: Index",
 				},
@@ -22,27 +22,19 @@ export default computed(() => [
 			{
 				path: "/tickets/view/:id?",
 				name: "tickets-view",
-				component: () => import("~/pages/tickets/view.vue"),
+				component: () => import("@/pages/tickets/view.vue"),
 				meta: {
 					title: "Tickets: View",
 				},
 			},
-			/*{
-				path: "/tickets/update",
-				name: "tickets-update",
-				component: () => import("@/pages/ticket/Update.vue"),
+			{
+				path: "/debug",
+				name: "debug",
+				component: () => import("@/pages/tickets/debug.vue"),
 				meta: {
-					title: "Tickets: Update",
+					title: "Debug",
 				},
 			},
-			{
-				path: "/tickets/delete",
-				name: "tickets-delete",
-				component: () => import("@/pages/ticket/Delete.vue"),
-				meta: {
-					title: "Tickets: Delete",
-				},
-			},*/
 		],
 	},
   {
