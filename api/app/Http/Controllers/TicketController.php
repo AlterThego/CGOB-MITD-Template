@@ -19,8 +19,11 @@ class TicketController extends Controller
     /**
      * Display a single ticket with related data.
      */
-    public function show(ShowTicketRequest $request, Ticket $ticket)
+    //ShowTicketRequest $request, Ticket $ticket
+    public function show($id)
     {
+        $ticket = Ticket::withTrashed()->findOrFail($id);
+
         // Newer
         return response()->json(new TicketResource($ticket->load(['violator', 'violator.gender'])));
 
@@ -38,7 +41,7 @@ class TicketController extends Controller
     public function list(Request $request)
     {
         $perPage = $request->input('per_page', 10);
-        $tickets = Ticket::with('violator')
+        $tickets = Ticket::withTrashed()->with('violator')
             ->when($request->query('citation_number'), function ($citation_number_query) use ($request) {
                 $citation_number_query->where('citation_number', 'ilike', "%{$request->query('citation_number')}%");
             })

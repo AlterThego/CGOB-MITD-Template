@@ -1,10 +1,10 @@
 <script setup lang = "ts">
     // Import
-    import { genderData } from './components/gender';
-    import { statusData } from './components/status';
-    import { ticketData, ticketColumns } from './components/ticket';
-    import { modalToggle, modalFormData, modalFormCNMaxLength, modalFormSchema } from './components/modal-shared';
-    import { modalSubmit,  } from './components/modal-create';
+    import { genderData } from './data/gender';
+    import { statusData } from './data/status';
+    import { ticketData, ticketColumns } from './data/ticket';
+    import { modalToggle, modalFormData, modalFormCNMaxLength, modalFormSchema } from './data/modal-shared';
+    import { modalSubmit,  } from './data/modal-create';
 
     // Data
     const { $api } = useNuxtApp();
@@ -48,7 +48,7 @@
 
 <template>
     <div class = "max-w-screen-xl mx-auto w-full py-5">
-        <!-- DONE: Header -->
+        <!-- Header -->
         <header class = "flex justify-between items-center py-2 px-8">
             <span class = "">
                 <h1 class = "font-bold">Tickets</h1>
@@ -65,9 +65,8 @@
                 />
             </span>
         </header>
-        <!-- DONE: Table -->
+        <!-- Table -->
         <TTable
-            :loading-state = "{ icon: 'i-heroicons-arrow-path-20-solid', label: 'Loading...', }"
             :rows = "ticketData"
             :columns = "ticketColumns"
         >
@@ -75,8 +74,8 @@
                 <TBadge
                     size = "xs"
                     variant = "outline"
-                    :label = "row.status"
-                    :color = "(row.status === 'Active') ? 'green' : (row.status === 'Pending') ? 'orange' : 'red'"
+                    :label = "(row.deleted_at !== null) ? 'Soft Deleted' : row.status"
+                    :color = "(row.deleted_at !== null) ? 'gray' : (row.status === 'Active') ? 'green' : (row.status === 'Pending') ? 'orange' : 'red'"
                 />
             </template>
             <template #actions-data = "{ row }">
@@ -89,7 +88,7 @@
                 </TDropdown>
             </template>
         </TTable>
-        <!-- DONE: Modal -->
+        <!-- Modal -->
         <TModal v-model = "modalToggle" prevent-close>
             <TCard :ui = "{ base: 'h-full flex flex-col', ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800', }">
                 <!-- Header / Close-->

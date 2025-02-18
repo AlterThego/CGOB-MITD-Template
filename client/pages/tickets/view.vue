@@ -1,9 +1,9 @@
 <script setup lang = "ts">
     // Import
-    import { genderData } from './components/gender';
-    import { statusData } from './components/status';
-    import { modalToggle, modalFormData, modalFormCNMaxLength, modalFormSchema } from './components/modal-shared';
-    import { modalUpdate, modalDelete } from './components/modal-update';
+    import { genderData } from './data/gender';
+    import { statusData } from './data/status';
+    import { modalToggle, modalFormData, modalFormCNMaxLength, modalFormSchema } from './data/modal-shared';
+    import { modalUpdate, modalDelete, modalRestore } from './data/modal-update';
 
     // Data
     const { $api } = useNuxtApp();
@@ -19,10 +19,10 @@
                 ticket.value = response.data;
 
                 // Swap the fetched gender string into id format
-                const getGenderID = (name) => {
+                const getGenderID = (name : any) => {
                     const gender = genderData.find(g => g.name === name);
                     return gender ? gender.id : "Unknown";
-                }
+                };
 
                 // Set
                 ticket.value.violator.gender_id = getGenderID(ticket.value.violator.gender);
@@ -37,16 +37,8 @@
 </script>
 
 <template>
-    <h1>Ticket</h1>
-    <pre>
-        {{ ticket }}
-    </pre>
-    <h1>MODAL</h1>
-    <pre>
-        {{ modalFormData }}
-    </pre>
     <div class = "max-w-screen-sm mx-auto w-full py-6">
-        <!-- DONE: Card-->
+        <!-- model-valueCard-->
         <TCard class = "shadow-lg border border-gray-200">
             <template #header>
                 <h2 class = "text-lg font-semibold text-gray-800">Violation Ticket</h2>
@@ -86,22 +78,25 @@
                     <TButton
                         icon = "i-heroicons-trash"
                         color = "red"
+                        variant = "outline"
+                        :disabled = "(ticket?.deleted_at !== null) ? true : false"
                         @click = "modalDelete"
                     >
                         Delete
                     </TButton>
                     <TButton
                         icon = "i-heroicons-archive-box"
-                        color = "gray"
+                        color = "blue"
                         variant = "outline"
-                        :disabled = "true"
+                        :disabled = "(ticket?.deleted_at !== null) ? false : true"
+                        @click = "modalRestore"
                     >
                         Restore
                     </TButton>
                 </div>
             </template>
         </TCard>
-        <!-- DONE: Modal -->
+        <!-- model-valueModal -->
         <TModal v-model = "modalToggle" prevent-close>
             <TCard :ui = "{ base: 'h-full flex flex-col', ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
                 <!-- Header / Close-->
@@ -150,7 +145,7 @@
                         </div>
                         <!-- First name / Middle name -->
                         <div class = "flex justify-between gap-x-4 mb-6">
-                            <TFormGroup class = "w-full" label = "First Name BLAAAAH">
+                            <TFormGroup class = "w-full" label = "First Name">
                                 <TInput
                                     class = "w-full"
                                     placeholder = "John"
