@@ -13,8 +13,8 @@ export default computed(() => [
 		children: [
 			{
 				path: "/tickets",
-				name: "tickets-index",
-				component: () => import("~/pages/tickets/index.vue"),
+				name: "tickets-index"
+				component: () => import("@/pages/tickets/index.vue")
 				meta: {
 					title: "Tickets: Index",
 				},
@@ -22,27 +22,11 @@ export default computed(() => [
 			{
 				path: "/tickets/view/:id?",
 				name: "tickets-view",
-				component: () => import("~/pages/tickets/view.vue"),
+				component: () => import("@/pages/tickets/view.vue"),
 				meta: {
 					title: "Tickets: View",
 				},
 			},
-			/*{
-				path: "/tickets/update",
-				name: "tickets-update",
-				component: () => import("@/pages/ticket/Update.vue"),
-				meta: {
-					title: "Tickets: Update",
-				},
-			},
-			{
-				path: "/tickets/delete",
-				name: "tickets-delete",
-				component: () => import("@/pages/ticket/Delete.vue"),
-				meta: {
-					title: "Tickets: Delete",
-				},
-			},*/
 		],
 	},
   {
