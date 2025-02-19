@@ -18,7 +18,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ViolatorController;
 
-Route::prefix("tickets")->group(function() {
+Route::prefix("tickets")->group(function () {
     Route::get("", [TicketController::class, "list"])->name("tickets.list");
     Route::get("{ticket}", [TicketController::class, "show"])->name("tickets.name");
     Route::post("", [TicketController::class, "create"])->name("tickets.create");
@@ -27,13 +27,14 @@ Route::prefix("tickets")->group(function() {
     Route::patch("{ticket}", [TicketController::class, "restore"])->name("tickets.restore");
 });
 
-Route::prefix("violators")->group(function() {
+Route::prefix("violators")->group(function () {
     Route::get("", [ViolatorController::class, "list"])->name("violators.list");
+    Route::get("trashed", [ViolatorController::class, "trashed"])->name("violators.trashed");
     Route::get("{violator}", [ViolatorController::class, "show"])->name("violators.name");
     Route::post("", [ViolatorController::class, "create"])->name("violators.create");
     Route::put("{violator}", [ViolatorController::class, "update"])->name("violators.update");
     Route::delete("{violator}", [ViolatorController::class, "delete"])->name("violators.delete");
-    Route::patch("{violator}", [ViolatorController::class, "retore"])->name("violators.restore");
+    Route::patch("{violator}", [ViolatorController::class, "restore"])->name("violators.restore");
 });
 
 Route::middleware(["auth:sanctum", "throttle:90,1", "isActive"])->group(function () {
@@ -190,7 +191,5 @@ Route::middleware(["api", "throttle:60,1"])->prefix("v1.0")->group(function () {
  * prettier-ignore
  */
 Route::middleware(["auth:sanctum", "throttle:60,1"])->prefix("v1.0")->group(function () {
-    Route::middleware(["verified"])->group(function () {
-
-    });
+    Route::middleware(["verified"])->group(function () {});
 });

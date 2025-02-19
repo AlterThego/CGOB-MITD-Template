@@ -9,34 +9,58 @@ export * from "./settings";
 
 export default computed(() => [
   // Debug
-	{
-		children: [
-			{
-				path: "/tickets",
-				name: "tickets-index",
-				component: () => import("~/pages/tickets/index.vue"),
-				meta: {
-					title: "Tickets: Index",
-				},
-			},
-			{
-				path: "/tickets/view/:id?",
-				name: "tickets-view",
-				component: () => import("~/pages/tickets/view.vue"),
-				meta: {
-					title: "Tickets: View",
-				},
-			},
+  {
+    children: [
+      {
+        path: "/tickets",
+        name: "tickets-index",
+        component: () => import("~/pages/tickets/index.vue"),
+        meta: {
+          title: "Tickets: Index",
+        },
+      },
+      {
+        path: "/tickets/view/:id?",
+        name: "tickets-view",
+        component: () => import("~/pages/tickets/view.vue"),
+        meta: {
+          title: "Tickets: View",
+        },
+      },
 
       {
-				path: "/tickets/view/:id?",
-				name: "tickets-view",
-				component: () => import("~/pages/tickets/view.vue"),
-				meta: {
-					title: "Tickets: View",
-				},
-			},
-			/*{
+        path: "/tickets/view/:id?",
+        name: "tickets-view",
+        component: () => import("~/pages/tickets/view.vue"),
+        meta: {
+          title: "Tickets: View",
+        },
+      },
+      {
+        path: "/violators",
+        name: "violators-index",
+        component: () => import("@/pages/violators/index.vue"),
+        meta: {
+          title: "Violators: Index",
+        },
+      },
+      {
+        path: "/violators/view/:id?",
+        name: "violators-view",
+        component: () => import("@/pages/violators/view.vue"),
+        meta: {
+          title: "Violators: Index",
+        },
+      },
+      {
+        path: "/violators/trashed",
+        name: "violators-bin",
+        component: () => import("@/pages/violators/trashed.vue"),
+        meta: {
+          title: "Violators: Bin",
+        },
+      },
+      /*{
 				path: "/tickets/update",
 				name: "tickets-update",
 				component: () => import("@/pages/ticket/Update.vue"),
@@ -52,8 +76,8 @@ export default computed(() => [
 					title: "Tickets: Delete",
 				},
 			},*/
-		],
-	},
+    ],
+  },
   {
     path: "/t",
     name: "tests",

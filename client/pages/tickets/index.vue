@@ -176,8 +176,6 @@ const ticketSchema = z.object({
 
 type TicketSchema = z.output<typeof ticketSchema>
 
-
-
 </script>
 
 <template>
@@ -207,7 +205,6 @@ type TicketSchema = z.output<typeof ticketSchema>
                     <TButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
                 </TDropdown>
             </template>
-
         </TTable>
 
         <TModal v-model="isOpenCreateTicket" prevent-close>
@@ -223,77 +220,9 @@ type TicketSchema = z.output<typeof ticketSchema>
                     </div>
                 </div>
 
-
-                <!-- <div class="grid grid-cols-2 gap-x-4">
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Citation Number
-                        </label>
-                        <TInput v-model="form.citation_number" :maxlength="maxLength" class="w-full"
-                            placeholder="12345678900">
-                            <template #trailing>
-                                <span class="text-xs text-gray-500 dark:text-gray-400">{{ form.citation_number.length
-                                    }}/{{ maxLength
-                                    }}</span>
-                            </template>
-                        </TInput>
-                    </div>
-
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            First Name
-                        </label>
-                        <TInput placeholder="John" v-model="form.violator.first_name" />
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-x-4">
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Middle Name
-                        </label>
-                        <TInput placeholder="Michael" v-model="form.violator.middle_name" />
-                    </div>
-
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Last Name
-                        </label>
-                        <TInput placeholder="Doe" v-model="form.violator.last_name" />
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-x-4">
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Gender
-                        </label>
-                        <TInputMenu v-model="form.violator.gender_id" :options="genders" placeholder="Select a gender"
-                            by="id" option-attribute="name" :search-attributes="['name']">
-                        </TInputMenu>
-                    </div>
-
-                    <div class="col-span py-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Status
-                        </label>
-                        <TInputMenu v-model="form.status" :options="statuses" placeholder="Set the status" by="id"
-                            option-attribute="name" :search-attributes="['name']">
-                        </TInputMenu>
-                    </div>
-                </div>
-
-                <div class="flex w-full justify-end px-4">
-                    <div class="py-2">
-                        <TButton label="Submit" @click="createTicket" />
-                    </div>
-                </div> -->
-
                 <TForm :schema="ticketSchema" :state="form" class="space-y-4z">
 
                     <div class="flex-row">
-
-
                         <div class="flex justify-between gap-x-4 mb-6 mt-3">
                             <TFormGroup class="basis-2/3  w-full" label="Citation Number" name="citation_number">
                                 <TInput v-model="form.citation_number" :maxlength="maxCitationNumberLength"
