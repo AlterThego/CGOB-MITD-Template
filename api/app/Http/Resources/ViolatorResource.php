@@ -22,5 +22,6 @@ class ViolatorResource extends JsonResource
             'gender' => $this->gender->name,
             'full_name' => $this->full_name,
         ];
+
     }
 }

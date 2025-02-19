@@ -16,9 +16,9 @@ class UserSeeder extends Seeder {
     public function run(): void {
         $users = [
             [
-                "username" => "whykhamist",
+                "username" => "danieltejano",
                 "email" => null,
-                "password" => Hash::make("wasd1234"),
+                "password" => Hash::make("password"),
                 "role" => "Admin",
             ],
             [
