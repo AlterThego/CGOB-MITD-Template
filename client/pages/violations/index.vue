@@ -1,32 +1,44 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
-
+import { ref } from 'vue';
 const { $api } = useNuxtApp();
 const router = useRouter();
 const violations = ref([])
 const toast = useToast()
 
+const sort = ref<{ column: string; direction: "asc" | "desc" }>({
+    column: 'id',
+    direction: 'asc'
+});
+
+
 const columns = [{
     key: 'id',
-    label: 'ID'
+    label: 'ID',
+    sortable: true,
 }, {
     key: 'name',
-    label: 'Name'
+    label: 'Name',
+    sortable: true
 }, {
     key: 'penalty',
-    label: 'Penalty'
+    label: 'Penalty',
+    sortable: true
 }, {
     key: 'ordinance',
-    label: 'Ordinance'
+    label: 'Ordinance',
+    sortable: true
 }, {
     key: 'fine',
-    label: 'Fine'
+    label: 'Fine',
+    sortable: true
 },
 {
     key: 'deleted_at',
-    label: 'Date Deleted'
+    label: 'Date Deleted',
 }, {
-    key: 'actions'
+    key: 'actions',
+    label: 'Actions',
 }];
 
 type Violation = {
@@ -65,25 +77,37 @@ onMounted(() => {
     getViolationsList();
 })
 
+const selectedColumns = ref([...columns])
+
 </script>
 
 <template>
     <div class="w-full max-w-screen-xl mx-auto my-10">
         <TCard>
             <template #header>
-                <h1>Violations</h1>
-                <CreateModal/>
+                <div class="flex justify-between items-center w-full">
+
+                    <h1 class="font-bold">Violations</h1>
+
+
+                    <div class="flex justify-between items-center gap-x-4">
+                        <CreateModal />
+                        <TSelectMenu v-model="selectedColumns" :options="columns" multiple placeholder="Columns" />
+                    </div>
+                </div>
+
+
             </template>
 
-
-            <TTable :rows="violations" :columns="columns" class="w-full">
-                <template #actions-data="{ row }">
-                    <TDropdown :items="items(row)">
-                        <TButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
-                    </TDropdown>
-                </template>
-            </TTable>
-
+            <div class="p-2">
+                <TTable :sort="sort" :rows="violations" :columns="selectedColumns" class="w-full" loading >
+                    <template #actions-data="{ row }">
+                        <TDropdown :items="items(row)">
+                            <TButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
+                        </TDropdown>
+                    </template>
+                </TTable>
+            </div>
 
 
             <template #footer>

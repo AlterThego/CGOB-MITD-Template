@@ -11,10 +11,16 @@ const schema = z.object({
     name: z.string({
         required_error: "Violation name is required",
     }),
-    penalty: z.string(),
-    ordinance: z.string(),
+    penalty: z.string({
+        required_error: "Penalty is required",
+    }),
+    ordinance: z.string({
+        required_error: "Ordinance is required",
+    }),
     fine: z
-        .string()
+        .string({
+            required_error: "Fine is required",
+        })
         .regex(/^\d{1,6}(\.\d{1,2})?$/, {
             message: "Reqired format: 123456.78",
         })
@@ -56,7 +62,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 <template>
     <div>
-        <TButton label="Create Violations" @click="isOpen = true" icon="i-heroicons-pencil-square" size="sm"
+        <TButton label="Create Violation" @click="isOpen = true" icon="i-heroicons-pencil-square" size="sm"
             color="primary" variant="outline" :trailing="false" />
 
         <TModal v-model="isOpen" prevent-close>
@@ -64,7 +70,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 <template #header>
                     <div class="flex items-center justify-between w-full">
                         <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-                            Modal
+                            Create Violation
                         </h3>
                         <TButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1"
                             @click="isOpen = false" />
@@ -72,29 +78,31 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 </template>
                 <div>
                     <TForm :schema="schema" :state="form" @submit="onSubmit" class="space-y-4">
-                        <div class="flex gap-x-4 w-full pb-10">
+                        <div class="flex gap-x-4 w-full pb-3">
                             <TFormGroup label="Violation Name" name="name" class="w-full">
-                                <TInput v-model="form.name" autocomplete="off" />
+                                <TInput v-model="form.name" autocomplete="off" placeholder="Speeding" />
                             </TFormGroup>
                             <TFormGroup label="Fine" name="fine" class="w-full">
-                                <TInput v-model="form.fine" autocomplete="off" />
+                                <TInput v-model="form.fine" autocomplete="off" placeholder="200" />
                             </TFormGroup>
                         </div>
 
                         <div class="flex gap-x-4 w-full">
                             <TFormGroup label="Ordinance" name="ordinance" class="w-full">
-                                <TTextarea v-model="form.ordinance" autocomplete="off" />
+                                <TTextarea v-model="form.ordinance" autocomplete="off"
+                                    placeholder="Ordinance No. 1023" />
                             </TFormGroup>
                             <TFormGroup label="Penalty" name="penalty" class="w-full">
-                                <TTextarea v-model="form.penalty" autocomplete="off" />
+                                <TTextarea v-model="form.penalty" autocomplete="off" placeholder="License Suspension" />
                             </TFormGroup>
 
                         </div>
 
 
-                        <div class="flex justify-end pt-5">
-                            <TButton type="submit">
-                                Submit
+                        <div class="flex justify-end pt-3">
+                            <TButton type="submit" variant="outline" block icon="i-heroicons-arrow-long-right"
+                                :trailing="true">
+                                Create
                             </TButton>
                         </div>
                     </TForm>
