@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const ViolatorsTrashTable = defineAsyncComponent(() => import('@/components/violators/Trash/ViolatorsTrashTable.vue'))
+const ViolatorsTrashTable = defineAsyncComponent(() => import('@/pages/violators/components/Trash/ViolatorsTrashTable.vue'))
 </script>
 
 <template>
@@ -10,7 +10,7 @@ const ViolatorsTrashTable = defineAsyncComponent(() => import('@/components/viol
             </span>
 
             <div class="flex space-x-2">
-                <TButton color="gray" variant="outline" icon="i-heroicons-arrow-lxeft"
+                <TButton color="gray" variant="outline" icon="i-heroicons-arrow-left"
                     :to="{ name: 'violators-index' }">
                     Back to List
                 </TButton>

@@ -3,8 +3,8 @@ import { defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router';
 import { useViolatorModal } from '@/composables/useViolatorModal'
 
-const ViolatorsTable = defineAsyncComponent(() => import('@/components/violators/ViolatorsTable.vue'))
-const ViolatorsModal = defineAsyncComponent(() => import('@/components/violators/ViolatorsModal.vue'))
+const ViolatorsTable = defineAsyncComponent(() => import('@/pages/violators/components/ViolatorsTable.vue'))
+const ViolatorsModal = defineAsyncComponent(() => import('@/pages/violators/components/ViolatorsModal.vue'))
 
 const { $api } = useNuxtApp()
 const violators = ref([])

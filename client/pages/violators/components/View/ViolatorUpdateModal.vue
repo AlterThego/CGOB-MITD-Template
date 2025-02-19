@@ -73,10 +73,8 @@ async function updateViolator() {
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                    <TInputMenu v-model="localViolator.gender_id" :options="genders" placeholder="Select a gender"
-                        by="id" option-attribute="name" :search-attributes="['name']"
-                        @update:model-value="(selected) => localViolator.gender_id = selected ? selected.id : null">
-                    </TInputMenu>
+                    <TSelect placeholder="Select gender" value-attribute="id" option-attribute="name"
+                        v-model=localViolator.gender_id :options="genders" :search-atttributes = "['name']" />
                 </div>
 
                 <div class="flex w-full justify-end px-4">

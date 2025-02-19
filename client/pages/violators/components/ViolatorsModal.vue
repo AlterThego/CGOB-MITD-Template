@@ -91,12 +91,8 @@ type ViolatorSchema = z.output<typeof violatorSchema>
                         </TFormGroup>
                     </div>
 
-                    <TInputMenu v-model="form.gender_id" :options="genders" placeholder="Select a gender" by="id"
-                        option-attribute="name" :search-attributes="['name']" @update:modelValue="(selected) => {
-                            form.gender_id = selected?.id ?? null;
-                        }">
-                    </TInputMenu>
-
+                    <TSelect placeholder="Select gender" value-attribute="id" option-attribute="name"
+                        v-model=form.gender_id :options="genders" :search-atttributes="['name']" />
                 </div>
 
                 <TButton type="submit" @click="createViolator" class="mt-4">

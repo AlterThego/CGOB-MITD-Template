@@ -1,7 +1,15 @@
 <script setup lang="ts">
+const router = useRouter();
 const { $api } = useNuxtApp()
 const violators = ref([])
-const loading = ref(false);
+const loading = ref(true);
+
+const { search, pagination } = useSearcher({
+    api: 'violators',
+    limit: 25,
+    method: 'get',
+    onPageChange: fetchViolatorList
+})
 
 const columns = [
     { key: 'id', label: 'ID' },
@@ -14,9 +22,9 @@ const columns = [
 
 const actions = (row: Violator) => [
     [{
-        label: 'Restore',
-        icon: 'i-heroicons-arrow-path-20-solid',
-        click: () => restoreTrashedViolator(row)
+        label: 'View',
+        icon: 'i-heroicons-user-circle-20-solid',
+        click: () => viewViolator(row)
     }]
 ];
 
@@ -29,34 +37,28 @@ type Violator = {
     full_name: string;
 };
 
-function fetchViolatorTrashedList() {
-    loading.value = true;
-    $api.get('violators/trashed')
-        .then((response) => {
-            violators.value = response.data
-        })
-        .catch((error) => {
-            console.error('Error fetching violators:', error);
-        })
-        .finally(() => {
-            loading.value = false;
-        });
+function viewViolator(row: Violator) {
+    if (!row.id) return;
+    console.log('Navigating to View:', row.id);
+
+    router.push({
+        name: 'violators-view',
+        params: { id: row.id }
+    });
 }
 
-function restoreTrashedViolator(row: Violator) {
-    loading.value = true;
-    $api.patch(`violators/${row.id}`)
-        .then(() => {
-            fetchViolatorTrashedList();
-        })
-        .finally(() => {
-            loading.value = false;
-        });
+async function fetchViolatorList() {
+
+    const { data } = await search()
+    violators.value = data.data
 }
 
+watch(() => pagination.page, async () => {
+    await search()
+})
 
 onMounted(() => {
-    fetchViolatorTrashedList()
+    fetchViolatorList()
 })
 </script>
 
@@ -70,5 +72,7 @@ onMounted(() => {
                 </TDropdown>
             </template>
         </TTable>
+
+        <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total"></TPagination>
     </div>
 </template>

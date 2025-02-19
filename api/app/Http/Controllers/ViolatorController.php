@@ -21,13 +21,17 @@ class ViolatorController extends Controller
 
     public function list(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('limit', 10);
 
         $violators = Violator::with('gender')
             ->orderBy('id', 'asc')
             ->paginate($perPage);
 
-        return response()->json(ViolatorResource::collection($violators));
+        return response()->json([
+            'total' => $violators->total(),
+            'page' => $violators->currentPage(),
+            'data' => ViolatorResource::collection($violators)
+        ]);
     }
 
     public function create(CreateViolatorRequest $request)
@@ -92,7 +96,7 @@ class ViolatorController extends Controller
     {
         $perPage = $request->input('per_page', 10);
 
-        $violators = Violator::onlyTrashed() // Retrieve only soft-deleted records
+        $violators = Violator::onlyTrashed()
             ->with('gender')
             ->orderBy('id', 'asc')
             ->paginate($perPage);
