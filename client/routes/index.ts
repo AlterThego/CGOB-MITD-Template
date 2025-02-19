@@ -27,14 +27,6 @@ export default computed(() => [
 					title: "Tickets: View",
 				},
 			},
-			{
-				path: "/debug",
-				name: "debug",
-				component: () => import("@/pages/tickets/debug.vue"),
-				meta: {
-					title: "Debug",
-				},
-			},
 		],
 	},
   {

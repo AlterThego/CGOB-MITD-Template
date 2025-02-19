@@ -1,25 +1,20 @@
 <script setup lang = "ts">
-    // Import
+    // IMPORT
     import { genderData } from './data/gender';
     import { statusData } from './data/status';
-    import { ticketData, ticketColumns } from './data/ticket';
-    import { modalToggle, modalFormData, modalFormCNMaxLength, modalFormSchema } from './data/modal-shared';
     import { modalSubmit,  } from './data/modal-create';
+    import { modalToggle, modalFormData, modalFormCNMaxLength, modalFormSchema } from './data/modal-shared';
+    import { ticketDataAll, ticketColumns, ticketFetchAll } from './data/ticket';
 
-    // Data
-    const { $api } = useNuxtApp();
-
+    // DATA
     const router = useRouter();
 
-    // Load
+    // LOAD
     onMounted(() => {
-        $api.get('tickets')
-            .then((response) => {
-                ticketData.value = response.data;
-            });
+        ticketFetchAll();
     });
 
-    // Tickets: Action (for some reason, this section does not work elsewhere unless put here)
+    // TICKET: Action (for some reason, this section does not work elsewhere unless put here)
     type Ticket = {
         id: number,
         citation_number: string,
@@ -38,7 +33,7 @@
     const ticketActions = (row : Ticket) => [
         [{
             label: 'View',
-            icon: 'i-heroicons-user-20-solid',
+            icon: 'i-heroicons-user',
             click: () => {
                 router.push({ name: 'tickets-view', params: { id: row.id, citation_number: row.citation_number, }, });
             },
@@ -47,32 +42,28 @@
 </script>
 
 <template>
-    <div class = "max-w-screen-xl mx-auto w-full py-5">
-        <!-- Header -->
-        <header class = "flex justify-between items-center py-2 px-8">
-            <span class = "">
-                <h1 class = "font-bold">Tickets</h1>
-            </span>
-            <span class = "flex gap-x-4">
-                <TButton
-                    icon = "i-heroicons-pencil-square"
-                    size = "sm"
-                    color = "primary"
-                    label = "Create New Ticket"
-                    variant = "outline"
-                    :trailing = "false"
-                    @click = "modalToggle = true"
-                />
-            </span>
+    <div class = "max-w-screen-xl mx-auto p-4 w-full">
+        <!-- HEADER -->
+        <header class = "flex items-center justify-between py-2">
+            <h1 class = "font-bold">Tickets</h1>
+            <TButton
+                icon = "i-heroicons-pencil-square"
+                size = "sm"
+                color = "emerald"
+                label = "Create New Ticket"
+                variant = "outline"
+                @click = "modalToggle = true"
+            />
         </header>
-        <!-- Table -->
+        <!-- TABLE -->
         <TTable
-            :rows = "ticketData"
+            :rows = "ticketDataAll"
             :columns = "ticketColumns"
         >
             <template #status-data = "{ row }">
                 <TBadge
                     size = "xs"
+                    class = "flex justify-center"
                     variant = "outline"
                     :label = "(row.deleted_at !== null) ? 'Soft Deleted' : row.status"
                     :color = "(row.deleted_at !== null) ? 'gray' : (row.status === 'Active') ? 'green' : (row.status === 'Pending') ? 'orange' : 'red'"
@@ -81,104 +72,107 @@
             <template #actions-data = "{ row }">
                 <TDropdown :items = "ticketActions(row)">
                     <TButton
-                        icon = "i-heroicons-ellipsis-horizontal-20-solid"
+                        icon = "i-heroicons-ellipsis-horizontal"
                         color = "gray"
                         variant = "ghost"
                     />
                 </TDropdown>
             </template>
         </TTable>
-        <!-- Modal -->
+        <!-- MODAL -->
         <TModal v-model = "modalToggle" prevent-close>
-            <TCard :ui = "{ base: 'h-full flex flex-col', ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800', }">
-                <!-- Header / Close-->
-                <div class = "flex items-center justify-between border-b pb-2">
-                    <h3 class = "text-base font-semibold leading-6 text-gray-900 dark:text-white">Create New Ticket</h3>
+            <TCard class = "max-w-screen-sm mx-auto w-full">
+                <!-- HEADER | CLOSE-->
+                <template #header>
+                    <h1 class = "font-bold">Create Ticket</h1>
                     <TButton
-                        icon = "i-heroicons-x-mark-20-solid"
-                        class = "-my-1"
+                        icon = "i-heroicons-x-mark"
+                        class = "m-0 p-0"
                         color = "gray"
                         variant = "ghost"
                         @click = "modalToggle = false"
                     />
-                </div>
-                <!-- Form -->
+                </template>
+                <!-- FORM -->
                 <TForm
-                    class = "space-y-4z"
                     :state = "modalFormData"
                     :schema = "modalFormSchema"
                 >
-                    <div class = "flex-row">
-                        <!-- Citation number / Status -->
-                        <div class = "flex justify-between gap-x-4 mb-6 mt-3">
-                            <TFormGroup class = "basis-2/3 w-full" label = "Citation Number" name = "citation_number">
-                                <TInput
-                                    class = "w-full"
-                                    placeholder = "123-4567-8910"
-                                    autocomplete = "off"
-                                    v-model = "modalFormData.citation_number"
-                                    :maxlength = "modalFormCNMaxLength"
-                                />
-                            </TFormGroup>
-                            <TFormGroup class = "basis-1/3 w-full" label = "Status" name = "status">
-                                <TInputMenu
-                                    by = "id"
-                                    placeholder = "Set the status"
-                                    option-attribute = "name"
-                                    v-model = "modalFormData.status"
-                                    :options = "statusData"
-                                    :search-attributes = "['name']"
-                                    @update:modelValue = "(selected) => modalFormData.status = selected ? String(selected.name) : ''"
-                                >
-                                </TInputMenu>
-                            </TFormGroup>
-                        </div>
-                        <!-- First name / Middle name -->
-                        <div class = "flex justify-between gap-x-4 mb-6">
-                            <TFormGroup class = "w-full" label = "First Name">
-                                <TInput
-                                    class = "w-full"
-                                    placeholder = "John"
-                                    autocomplete = "off"
-                                    v-model = "modalFormData.violator.first_name"
-                                />
-                            </TFormGroup>
-                            <TFormGroup class = "w-full" label = "Middle Name">
-                                <TInput
-                                    class = "w-full"
-                                    placeholder = "Michael"
-                                    autocomplete = "off"
-                                    v-model = "modalFormData.violator.middle_name"
-                                />
-                            </TFormGroup>
-                        </div>
-                        <!-- Last name / Gender -->
-                        <div class = "flex justify-between gap-x-4 mb-6">
-                            <TFormGroup class = "w-full" label = "Last Name">
-                                <TInput
-                                    class = "w-full"
-                                    placeholder = "Doe"
-                                    autocomplete = "off"
-                                    v-model = "modalFormData.violator.last_name"
-                                />
-                            </TFormGroup>
-                            <TFormGroup class = "w-full" label = "Gender">
-                                <TInputMenu
-                                    by = "id"
-                                    placeholder = "Select a gender"
-                                    option-attribute = "name"
-                                    v-model = "modalFormData.violator.gender_id"
-                                    :options = "genderData"
-                                    :search-attributes = "['name']"
-                                    @update:modelValue = "(selected) => modalFormData.violator.gender_id = selected ? selected.id : null"
-                                >
-                                </TInputMenu>
-                            </TFormGroup>
-                        </div>
-                        <!-- Submit -->
-                        <div class = "flex justify-between">
-                            <TButton type = "submit" @click = "modalSubmit">Submit</TButton>
-                        </div>
+                    <!-- CITATION NUMBER | STATUS -->
+                    <div class = "flex gap-4 justify-between p-4">
+                        <TFormGroup class = "w-full" label = "Citation Number" name = "citation_number">
+                            <TInput
+                                placeholder = "123-4567-8910"
+                                autocomplete = "off"
+                                v-model = "modalFormData.citation_number"
+                                :maxlength = "modalFormCNMaxLength"
+                            />
+                        </TFormGroup>
+                        <TFormGroup class = "w-full" label = "Status" name = "status">
+                            <TInputMenu
+                                by = "id"
+                                placeholder = "Select status"
+                                option-attribute = "name"
+                                v-model = "modalFormData.status"
+                                :options = "statusData"
+                                :search-attributes = "['name']"
+                                @update:modelValue = "(selected) => modalFormData.status = selected ? String(selected.name) : ''"
+                            >
+                            </TInputMenu>
+                        </TFormGroup>
+                    </div>
+                    <!-- FIRST NAME | MIDDLE NAME -->
+                    <div class = "flex gap-4 justify-between p-4">
+                        <TFormGroup class = "w-full" label = "First Name">
+                            <TInput
+                                placeholder = "John"
+                                autocomplete = "off"
+                                v-model = "modalFormData.violator.first_name"
+                            />
+                        </TFormGroup>
+                        <TFormGroup class = "w-full" label = "Middle Name">
+                            <TInput
+                                placeholder = "Michael"
+                                autocomplete = "off"
+                                v-model = "modalFormData.violator.middle_name"
+                            />
+                        </TFormGroup>
+                    </div>
+                    <!-- LAST NAME | GENDER -->
+                    <div class = "flex gap-4 justify-between p-4">
+                        <TFormGroup class = "w-full" label = "Last Name">
+                            <TInput
+                                placeholder = "Doe"
+                                autocomplete = "off"
+                                v-model = "modalFormData.violator.last_name"
+                            />
+                        </TFormGroup>
+                        <TFormGroup class = "w-full" label = "Gender">
+                            <TInputMenu
+                                by = "id"
+                                placeholder = "Select gender"
+                                option-attribute = "name"
+                                v-model = "modalFormData.violator.gender_id"
+                                :options = "genderData"
+                                :search-attributes = "['name']"
+                                @update:modelValue = "(selected) => modalFormData.violator.gender_id = selected ? selected.id : null"
+                            >
+                            </TInputMenu>
+                        </TFormGroup>
+                    </div>
+                    <!-- SUBMIT -->
+                    <div class = "flex justify-between p-4">
+                        <TButton
+                            icon = "i-heroicons-plus"
+                            size = "sm"
+                            type = "submit"
+                            class = "justify-center w-full"
+                            color = "emerald"
+                            variant = "outline"
+                            @click = "modalSubmit"
+                        >
+                            Submit
+                        </TButton>
                     </div>
                 </TForm>
             </TCard>

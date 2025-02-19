@@ -1,10 +1,21 @@
-// Import
+// IMPORT
 import { z } from 'zod';
 import { ref } from 'vue';
 
-// Export (variables)
+// EXPORT (variables)
 export const modalToggle = ref(false);
+export const modalToggleDefault = ref(false);
 export const modalFormData = ref({
+    citation_number: '',
+    status: '',
+    violator: {
+        first_name: '',
+        middle_name: '',
+        last_name: '',
+        gender_id: '',
+    },
+});
+export const modalFormDataDefault = ref({
     citation_number: '',
     status: '',
     violator: {
@@ -16,8 +27,8 @@ export const modalFormData = ref({
 });
 export const modalFormCNMaxLength = 13;
 export const modalFormSchema = z.object({
-    citation_number: z.string().regex(/^\d{3}-\d{4}-\d{4}$/, "Invalid citation number format is 123-4567-8910"),
-    status: z.string().min(1),
+    citation_number: z.string().regex(/^\d{3}-\d{4}-\d{4}$/, "Use format XXX-XXXX-XXXX"),
+    status: z.string(),
     violator: z.object({
         first_name: z.string(),
         middle_name: z.string().optional(), 
@@ -26,5 +37,5 @@ export const modalFormSchema = z.object({
     }),
 });
 
-// Other
+// OTHER
 type FormSchema = z.output<typeof modalFormSchema>

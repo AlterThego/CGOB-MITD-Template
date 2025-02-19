@@ -1,20 +1,22 @@
-// Import
-import { modalFormData } from './modal-shared';
+// IMPORT
+import { modalToggle, modalToggleDefault, modalFormData, modalFormDataDefault } from './modal-shared';
+import { ticketFetchAll } from './ticket';
 
-// Data
-const { $api } = useNuxtApp();
-
-const toast = useToast();
-
-// Export (functions)
+// EXPORT (functions)
 export const modalSubmit = () => {
-    const submit = modalFormData; // For some reason, this local variable is needed instead of directly calling the imported vaiable
+    const { $api } = useNuxtApp();
 
-    $api.post('tickets', submit.value)
-        .then((response) => {
+    const toast = useToast();
+
+    $api.post('tickets', modalFormData.value)
+        .then(() => {
+            modalFormData.value = modalFormDataDefault.value;
+            modalToggle.value = modalToggleDefault.value;
+
             toast.add({
                 title: 'Success',
                 description: 'The ticket was created successfully.',
             });
+            ticketFetchAll();
         });
 };
