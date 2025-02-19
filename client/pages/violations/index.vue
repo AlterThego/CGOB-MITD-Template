@@ -1,71 +1,10 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 const { $api } = useNuxtApp();
 const router = useRouter();
-const violations = ref([])
+const violations = ref([]);
 
-
-async function getViolationsList() {
-    // use Search function from Searcher Composable.
-    const { data } = await search();
-    // assign the value to violations.
-    violations.value = data.data
-}
-
-// Mount
-onMounted(() => {
-    getViolationsList();
-})
-
-// Searcher Component
-const { search, pagination } = useSearcher({
-    // List Backend Route
-    api: 'violations',
-    // limit,
-    limit: 10,
-    method: 'get',
-    // Callback Function to call on Page Change
-    onPageChange: getViolationsList,
-});
-
-// Listen for value changes for pagination.page.
-// @ts-ignore
-watch(() => pagination.page, async () => await search());
-
-// Sorting of columns to id
-const sort = ref<{ column: string; direction: "asc" | "desc" }>({
-    column: 'id',
-    direction: 'asc'
-});
-
-// Columns
-const columns = [{
-    key: 'id',
-    label: 'ID',
-    sortable: true,
-}, {
-    key: 'name',
-    label: 'Name',
-    sortable: true
-}, {
-    key: 'penalty',
-    label: 'Penalty',
-    sortable: true
-}, {
-    key: 'ordinance',
-    label: 'Ordinance',
-    sortable: true
-}, {
-    key: 'fine',
-    label: 'Fine',
-    sortable: true
-}, {
-    key: 'actions',
-    label: 'Actions',
-}];
-
-// Violation Type
 type Violation = {
     id: number
     name: string
@@ -74,36 +13,48 @@ type Violation = {
     fine: number
     created_at: string
 }
+// Importing CreateViolation Component
+const CreateViolation = defineAsyncComponent(() => import('@/pages/violations/components/create-violation.vue'));
 
-// Action Items
+async function getViolationsList() {
+    const { data } = await search();
+    violations.value = data.data;
+}
+
+onMounted(() => {
+    getViolationsList();
+});
+
+const { search, pagination } = useSearcher({
+    api: 'violations',
+    limit: 10,
+    method: 'get',
+    onPageChange: getViolationsList,
+});
+
+// @ts-ignore
+watch(() => pagination.page, async () => await search());
+
+const columns = [
+    { key: 'id', label: 'ID', sortable: true },
+    { key: 'name', label: 'Name', sortable: true },
+    { key: 'penalty', label: 'Penalty', sortable: true },
+    { key: 'ordinance', label: 'Ordinance', sortable: true },
+    { key: 'fine', label: 'Fine', sortable: true },
+    { key: 'actions', label: 'Actions' },
+];
+
+const selectedColumns = ref([...columns]);
+
 const items = (row: Violation) => [
     [{
         label: 'View',
         icon: 'i-heroicons-view-columns-20-solid',
-        click: () => {
-            // console.log('Pushing to Ticket View:', row.id)
-            router.push({ name: 'violations-view', params: { id: row.id } });
-        }
+        click: () => router.push({ name: 'violations-view', params: { id: row.id } }),
     }]
-]
-
-// Importing Create Modal
-const CreateModal = defineAsyncComponent(() =>
-    import('@/pages/violations/components/create-modal.vue')
-)
-
-// LIST
-// function getViolationsList() {
-//     $api.get('violations')
-//         .then((response) => {
-//             violations.value = response.data
-//         })
-// }
+];
 
 
-
-// Selected Columns(hide or show)
-const selectedColumns = ref([...columns])
 
 </script>
 
@@ -112,29 +63,20 @@ const selectedColumns = ref([...columns])
         <TCard>
             <template #header>
                 <div class="flex justify-between items-center w-full">
-
                     <h1 class="font-bold">Violations</h1>
-
-
-                    <div class="flex justify-between items-center gap-x-4">
-                        <CreateModal />
+                    <div class="flex gap-x-4">
+                        <CreateViolation @created="getViolationsList" />
                         <TSelectMenu v-model="selectedColumns" :options="columns" multiple placeholder="Columns" />
                         <NuxtLink :to="{ name: 'violations-archived' }">
                             <TButton icon="i-heroicons-archive-box" size="sm" color="red" variant="outline"
                                 label="Archive" :trailing="false" class="hover:bg-red-50" />
                         </NuxtLink>
-
-
-
-
                     </div>
                 </div>
-
-
             </template>
 
             <div class="p-2">
-                <TTable :sort="sort" :rows="violations" :columns="selectedColumns" class="w-full">
+                <TTable :rows="violations" :columns="selectedColumns" class="w-full">
                     <template #actions-data="{ row }">
                         <TDropdown :items="items(row)">
                             <TButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
@@ -142,16 +84,9 @@ const selectedColumns = ref([...columns])
                     </template>
                 </TTable>
                 <div class="flex justify-end px-3 py-3.5 border-t border-gray-200 dark:border-gray-700">
-                    <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total">
-                    </TPagination>
+                    <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total" />
                 </div>
             </div>
-
-
-            <template #footer>
-
-            </template>
         </TCard>
     </div>
-
 </template>

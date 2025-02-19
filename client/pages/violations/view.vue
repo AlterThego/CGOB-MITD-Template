@@ -44,7 +44,7 @@ function restoreViolation() {
 }
 
 const UpdateModal = defineAsyncComponent(() =>
-    import('@/pages/violations/components/update-modal.vue')
+    import('@/pages/violations/components/update-violation.vue')
 )
 
 
