@@ -2,14 +2,17 @@
 const router = useRouter();
 const { $api } = useNuxtApp()
 const violators = ref([])
-const loading = ref(true);
-
-const { search, pagination } = useSearcher({
+// Searcher Component
+const {search, pagination } = useSearcher({
+    // List Backend Route
     api: 'violators',
-    limit: 25,
+    // limit,
+    limit: 25, 
     method: 'get',
-    onPageChange: fetchViolatorList
-})
+    // Callback Function to call on Page Change
+    onPageChange: fetchViolatorList,
+});
+const loading = ref(true);
 
 const columns = [
     { key: 'id', label: 'ID' },
