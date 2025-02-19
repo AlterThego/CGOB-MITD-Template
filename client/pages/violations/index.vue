@@ -100,7 +100,7 @@ const selectedColumns = ref([...columns])
             </template>
 
             <div class="p-2">
-                <TTable :sort="sort" :rows="violations" :columns="selectedColumns" class="w-full" loading >
+                <TTable :sort="sort" :rows="violations" :columns="selectedColumns" class="w-full">
                     <template #actions-data="{ row }">
                         <TDropdown :items="items(row)">
                             <TButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
