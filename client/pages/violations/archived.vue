@@ -21,7 +21,7 @@ onMounted(() => {
 // Searcher Component
 const { search, pagination } = useSearcher({
     // List Backend Route
-    api: 'violations',
+    api: 'violations/archived',
     // limit,
     limit: 10,
     method: 'get',
@@ -60,6 +60,10 @@ const columns = [{
     key: 'fine',
     label: 'Fine',
     sortable: true
+},
+{
+    key: 'deleted_at',
+    label: 'Date Deleted',
 }, {
     key: 'actions',
     label: 'Actions',
@@ -73,6 +77,7 @@ type Violation = {
     ordinance: string
     fine: number
     created_at: string
+    deleted_at: string
 }
 
 // Action Items
@@ -87,10 +92,6 @@ const items = (row: Violation) => [
     }]
 ]
 
-// Importing Create Modal
-const CreateModal = defineAsyncComponent(() =>
-    import('@/pages/violations/components/create-modal.vue')
-)
 
 // LIST
 // function getViolationsList() {
@@ -117,16 +118,11 @@ const selectedColumns = ref([...columns])
 
 
                     <div class="flex justify-between items-center gap-x-4">
-                        <CreateModal />
                         <TSelectMenu v-model="selectedColumns" :options="columns" multiple placeholder="Columns" />
-                        <NuxtLink :to="{ name: 'violations-archived' }">
-                            <TButton icon="i-heroicons-archive-box" size="sm" color="red" variant="outline"
-                                label="Archive" :trailing="false" class="hover:bg-red-50" />
+                        <NuxtLink :to="{ name: 'violations-index' }">
+                            <TButton icon="i-heroicons-home" size="sm" color="primary" variant="outline" label="Home"
+                                :trailing="false" />
                         </NuxtLink>
-
-
-
-
                     </div>
                 </div>
 

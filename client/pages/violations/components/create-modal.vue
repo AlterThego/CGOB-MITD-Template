@@ -1,12 +1,20 @@
 <script setup lang="ts">
+// Api integration
+const { $api } = useNuxtApp();
+const violations = ref([]);
+// Modal flag
 const isOpen = ref(false)
 
+// Zod import
 import { z } from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
-const router = useRouter();
-const toast = useToast()
-const { $api } = useNuxtApp();
 
+// Submit event
+import type { FormSubmitEvent } from '#ui/types'
+
+// Toast
+const toast = useToast()
+
+// Schema for zod input validation
 const schema = z.object({
     name: z.string({
         required_error: "Violation name is required",
@@ -22,13 +30,15 @@ const schema = z.object({
             required_error: "Fine is required",
         })
         .regex(/^\d{1,6}(\.\d{1,2})?$/, {
-            message: "Reqired format: 123456.78",
+            message: "Reqired format: 123 456.78",
         })
         .transform(val => parseFloat(val)),
 })
 
+// Zod schema
 type Schema = z.output<typeof schema>
 
+// Create form
 const form = ref({
     name: undefined,
     penalty: undefined,
@@ -37,7 +47,7 @@ const form = ref({
 })
 
 // CreateTicket
-function createTicket() {
+function createViolation() {
     $api.post('violations', form.value)
         .then(() => {
             isOpen.value = false;
@@ -50,13 +60,48 @@ function createTicket() {
             toast.add({
                 title: 'Success',
                 description: 'The ticket was created successfully.',
-            })
+            });
+            getViolationsList()
+        })
+        .finally(() => {
+            getViolationsList()
         })
 }
 
+// Submit 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-    createTicket();
+    createViolation();
 }
+
+
+async function getViolationsList() {
+    // use Search function from Searcher Composable.
+    const { data } = await search();
+    // assign the value to violations.
+    violations.value = data.data
+}
+
+// Mount
+onMounted(() => {
+    getViolationsList();
+})
+
+// @ts-ignore
+
+
+// Searcher Component
+const { search, pagination } = useSearcher({
+    // List Backend Route
+    api: 'violations/archived',
+    // limit,
+    limit: 10,
+    method: 'get',
+    // Callback Function to call on Page Change
+    onPageChange: getViolationsList,
+});
+
+// @ts-ignore
+watch(() => pagination.page, async () => await search());
 
 </script>
 
@@ -103,8 +148,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                             <TButton type="submit" variant="outline" block icon="i-heroicons-arrow-long-right"
                                 :trailing="true">
                                 Create
+
+
                             </TButton>
                         </div>
+
                     </TForm>
                 </div>
 

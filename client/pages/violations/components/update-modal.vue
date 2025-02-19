@@ -3,6 +3,7 @@ const isOpen = ref(false)
 
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
+
 const route = useRoute();
 const toast = useToast()
 const { $api } = useNuxtApp();
@@ -37,6 +38,7 @@ const schema = z.object({
         .transform(val => parseFloat(val)),
 })
 
+// Zod schema
 type Schema = z.output<typeof schema>
 
 // Show violation function

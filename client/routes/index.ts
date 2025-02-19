@@ -46,6 +46,15 @@ export default computed(() => [
 				},
 			},
 
+      {
+				path: "/violations/archived",
+				name: "violations-archived",
+				component: () => import("@/pages/violations/archived.vue"),
+				meta: {
+					title: "Violations: Index",
+				},
+			},
+
 			/*{
 				path: "/tickets/update",
 				name: "tickets-update",
