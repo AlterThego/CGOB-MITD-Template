@@ -21,13 +21,20 @@ class ViolatorController extends Controller
 
     public function list(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('limit', 10);
 
         $violators = Violator::with('gender')
             ->orderBy('id', 'asc')
             ->paginate($perPage);
 
-        return response()->json(ViolatorResource::collection($violators));
+        // Reformat the Response Type such that the top level
+        // includes the key and value of total number of items in the query
+        // and the current page the list belongs to.
+        return response()->json([
+            'total' => $violators->total(),
+            'page' => $violators->currentPage(),
+            'data' => ViolatorResource::collection($violators)
+        ]);
     }
 
     public function create(CreateViolatorRequest $request)

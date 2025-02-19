@@ -2,6 +2,16 @@
 const router = useRouter();
 const { $api } = useNuxtApp()
 const violators = ref([])
+// Searcher Component
+const {search, pagination } = useSearcher({
+    // List Backend Route
+    api: 'violators',
+    // limit,
+    limit: 25, 
+    method: 'get',
+    // Callback Function to call on Page Change
+    onPageChange: fetchViolatorList,
+});
 const loading = ref(true);
 
 const columns = [
@@ -40,19 +50,15 @@ function viewViolator(row: Violator) {
     });
 }
 
-function fetchViolatorList() {
-    loading.value = true;
-    $api.get('violators')
-        .then((response) => {
-            violators.value = response.data;
-        })
-        .catch((error) => {
-            console.error('Error fetching violators:', error);
-        })
-        .finally(() => {
-            loading.value = false;
-        });
+async function fetchViolatorList() {
+    // use Search function from Searcher Composable.
+    const { data } = await search();
+    // assign the value to violators.
+    violators.value = data.data
 }
+
+// Listen for value changes for pagination.page.
+watch(() => pagination.page, async() => await search());
 
 onMounted(() => {
     fetchViolatorList()
@@ -71,5 +77,7 @@ onMounted(() => {
                 </TDropdown>
             </template>
         </TTable>
+        <!-- Pass the values from pagination. -->
+        <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total"></TPagination>
     </div>
 </template>
