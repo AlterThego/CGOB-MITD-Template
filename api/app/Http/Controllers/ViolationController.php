@@ -13,20 +13,54 @@ use App\Models\Violation;
 
 class ViolationController extends Controller
 {
-    public function show($id)
+    public function show(Violation $violation)
     {
-        $violation = Violation::withTrashed()->findOrFail($id);
         // Newer
         return response()->json(new ViolationResource($violation));
     }
 
     public function list(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('limit', 10);
 
-        $violations = Violation::withTrashed()->paginate($perPage);
+        // With foreign keys
+        // $violations = Violation::with('genders')
+        //     ->orderBy('id', 'asc')
+        //     ->paginate($perPage);
 
-        return response()->json(ViolationResource::collection($violations));
+        $violations = Violation::orderBy('id')
+            ->paginate($perPage);
+        // Reformat the Response Type such that the top level
+        // includes the key and value of total number of items in the query
+        // and the current page the list belongs to.
+        return response()->json([
+            'total' => $violations->total(),
+            'page' => $violations->currentPage(),
+            'data' => ViolationResource::collection($violations)
+        ]);
+    }
+
+
+    public function archived(Request $request)
+    {
+        $perPage = $request->input('limit', 10);
+
+        // With foreign keys
+        // $violations = Violation::with('genders')
+        //     ->orderBy('id', 'asc')
+        //     ->paginate($perPage);
+
+        $violations = Violation::onlyTrashed()
+            ->orderBy('id')
+            ->paginate($perPage);
+        // Reformat the Response Type such that the top level
+        // includes the key and value of total number of items in the query
+        // and the current page the list belongs to.
+        return response()->json([
+            'total' => $violations->total(),
+            'page' => $violations->currentPage(),
+            'data' => ViolationResource::collection($violations)
+        ]);
     }
 
 
