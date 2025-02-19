@@ -30,7 +30,7 @@ export const modalFormSchema = z.object({
     citation_number: z.string().regex(/^\d{3}-\d{4}-\d{4}$/, "Use format XXX-XXXX-XXXX"),
     status: z.string(),
     violator: z.object({
-        first_name: z.string(),
+        first_name: z.string().min(1),
         middle_name: z.string().optional(), 
         last_name: z.string().optional(),
         gender_id: z.number(),

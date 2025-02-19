@@ -14,9 +14,14 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LogController;
 
+use App\Http\Controllers\GenderController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ViolatorController;
+
+Route::prefix("genders")->group(function() {
+    Route::get("", [GenderController::class, "list"])->name("genders.list");
+});
 
 Route::prefix("tickets")->group(function() {
     Route::get("", [TicketController::class, "list"])->name("tickets.list");

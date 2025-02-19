@@ -37,33 +37,3 @@ export const ticketColumns = [
 ];
 
 // EXPORT (functions)
-export const ticketFetchAll = () => {
-    const { $api } = useNuxtApp();
-
-    $api.get('tickets')
-        .then((response) => {
-            ticketDataAll.value = response.data;
-        });
-};
-export const ticketFetchSingle = () => {
-    const { $api } = useNuxtApp();
-
-    const route = useRoute();
-
-    $api.get(`tickets/${route.params.id}`)
-        .then((response) => {
-            // Get
-            ticketDataSingle.value = response.data;
-
-            // Property "gender" is retrieved. Do not be confused with "gender_id".
-            // Get "gender_id" using "gender".
-            const getGenderID = (name : any) => {
-                const gender = genderData.find(g => g.name === name);
-                return gender ? gender.id : "Unknown";
-            };
-
-            // Set
-            ticketDataSingle.value.violator.gender_id = getGenderID(ticketDataSingle.value.violator.gender);
-            modalFormData.value = ticketDataSingle.value;
-        });
-};

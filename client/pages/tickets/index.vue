@@ -1,18 +1,62 @@
 <script setup lang = "ts">
     // IMPORT
-    import { genderData } from './data/gender';
+    //import { genderData } from './data/gender';
     import { statusData } from './data/status';
-    import { modalSubmit,  } from './data/modal-create';
-    import { modalToggle, modalFormData, modalFormCNMaxLength, modalFormSchema } from './data/modal-shared';
-    import { ticketDataAll, ticketColumns, ticketFetchAll } from './data/ticket';
+    import { modalToggle, modalToggleDefault, modalFormData, modalFormDataDefault, modalFormCNMaxLength, modalFormSchema } from './data/modal-shared';
+    import { ticketDataAll, ticketColumns } from './data/ticket';
 
     // DATA
     const router = useRouter();
-
+    const genderData = ref([]);
     // LOAD
     onMounted(() => {
-        ticketFetchAll();
+        const { $api } = useNuxtApp();
+        const route = useRoute();
+        $api.get('genders')
+            .then((response) => {
+                genderData.value = response.data;
+            });
+        ticketFetch();
     });
+
+    // PAGINATION
+    const ticketFetch = async () => {
+        // use Search function from Searcher Composable.
+        const { data } = await search();
+        // assign the value to violators.
+        ticketDataAll.value = data.data;
+    }
+    
+    const { search, pagination } = useSearcher({
+        // List Backend Route
+        api: 'tickets',
+        // limit,
+        limit: 25, 
+        method: 'get',
+        // Callback Function to call on Page Change
+        onPageChange: ticketFetch,
+    });
+    // @ts-ignore
+    watch(() => pagination.page, async() => await search());
+
+
+    const modalSubmit = () => {
+        const { $api } = useNuxtApp();
+
+        const toast = useToast();
+
+        $api.post('tickets', modalFormData.value)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
+
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was created successfully.',
+                });
+                ticketFetch();
+            });
+    };
 
     // TICKET: Action (for some reason, this section does not work elsewhere unless put here)
     type Ticket = {
@@ -55,7 +99,7 @@
                 @click = "modalToggle = true"
             />
         </header>
-        <!-- TABLE -->
+        <!-- WIP: TABLE -->
         <TTable
             :rows = "ticketDataAll"
             :columns = "ticketColumns"
@@ -79,6 +123,7 @@
                 </TDropdown>
             </template>
         </TTable>
+        <TPagination v-model = "pagination.page" :page-count = "pagination.limit" :total = "pagination.total"></TPagination>
         <!-- MODAL -->
         <TModal v-model = "modalToggle" prevent-close>
             <TCard class = "max-w-screen-sm mx-auto w-full">

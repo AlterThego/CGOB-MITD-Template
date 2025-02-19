@@ -4,12 +4,35 @@
     import { statusData } from './data/status';
     import { modalToggle, modalFormData, modalFormCNMaxLength, modalFormSchema } from './data/modal-shared';
     import { modalUpdate, modalDelete, modalRestore } from './data/modal-update';
-    import { ticketDataSingle, ticketFetchSingle } from './data/ticket';
+    import { ticketDataSingle } from './data/ticket';
 
     // LOAD
+    const ticketFetchSingle = () => {
+    const { $api } = useNuxtApp();
+
+    const route = useRoute();
+
+    $api.get(`tickets/${route.params.id}`)
+        .then((response) => {
+            // Get
+            ticketDataSingle.value = response.data;
+
+            // Property "gender" is retrieved. Do not be confused with "gender_id".
+            // Get "gender_id" using "gender".
+            const getGenderID = (name : any) => {
+                const gender = genderData.find(g => g.name === name);
+                return gender ? gender.id : "Unknown";
+            };
+
+            // Set
+            ticketDataSingle.value.violator.gender_id = getGenderID(ticketDataSingle.value.violator.gender);
+            modalFormData.value = ticketDataSingle.value;
+        });
+};
     onMounted(() => {
         ticketFetchSingle();
     });
+    
 
     // AVATAR
     const avatarSeed = computed(() => {
@@ -125,7 +148,6 @@
                                 autocomplete = "off"
                                 v-model = "modalFormData.citation_number"
                                 :maxlength = "modalFormCNMaxLength"
-                                :model-value = "ticketDataSingle?.citation_number"
                             />
                         </TFormGroup>
                         <TFormGroup class = "w-full" label = "Status" name = "status">
@@ -135,7 +157,6 @@
                                 option-attribute = "name"
                                 v-model = "modalFormData.status"
                                 :options = "statusData"
-                                :model-value = "ticketDataSingle?.status"
                                 :search-attributes = "['name']"
                                 @update:modelValue = "(selected) => modalFormData.status = selected ? String(selected.name) : ''"
                             >
@@ -149,7 +170,6 @@
                                 placeholder = "John"
                                 autocomplete = "off"
                                 v-model = "modalFormData.violator.first_name"
-                                :model-value = "ticketDataSingle?.violator.first_name"
                             />
                         </TFormGroup>
                         <TFormGroup class = "w-full" label = "Middle Name">
@@ -157,7 +177,6 @@
                                 placeholder = "Michael"
                                 autocomplete = "off"
                                 v-model = "modalFormData.violator.middle_name"
-                                :model-value = "ticketDataSingle?.violator.middle_name"
                             />
                         </TFormGroup>
                     </div>
@@ -168,21 +187,17 @@
                                 placeholder = "Doe"
                                 autocomplete = "off"
                                 v-model = "modalFormData.violator.last_name"
-                                :model-value = "ticketDataSingle?.violator.last_name"
                             />
                         </TFormGroup>
                         <TFormGroup class = "w-full" label = "Gender">
-                            <TInputMenu
-                                by = "id"
+                            <TSelect
                                 placeholder = "Select gender"
+                                value-attribute = "id"
                                 option-attribute = "name"
                                 v-model = "modalFormData.violator.gender_id"
                                 :options = "genderData"
-                                :model-value = "ticketDataSingle?.violator.gender_id"
                                 :search-attributes = "['name']"
-                                @update:modelValue = "(selected) => modalFormData.violator.gender_id = selected ? selected.id : null"
-                            >
-                            </TInputMenu>
+                            />
                         </TFormGroup>
                     </div>
                     <!-- SUBMIT -->

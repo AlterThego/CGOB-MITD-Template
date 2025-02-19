@@ -57,13 +57,42 @@ class TicketController extends Controller
                         $violator_last_name_query->orWhere('last_name', 'ilike', "%{$request->query('last_name')}%");
                     });
             })
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
-        return response()->json(TicketResource::collection($tickets));
+        return response()->json([
+            'total' => $tickets->total(),
+            'page' => $tickets->currentPage(),
+            'data' => TicketResource::collection($tickets)
+        ]);
 
         // Original code
         // $tickets = Ticket::paginate(10);
         // return response()->json(TicketResource::collection($tickets));
+
+        /*
+            PRE-PAGINATION:
+            $perPage = $request->input('per_page', 10);
+            $tickets = Ticket::withTrashed()->with('violator')
+                ->when($request->query('citation_number'), function ($citation_number_query) use ($request) {
+                    $citation_number_query->where('citation_number', 'ilike', "%{$request->query('citation_number')}%");
+                })
+                ->whereRelation('violator', function ($violator_sub_query) use ($request) {
+                    $violator_sub_query
+                        ->when($request->query('first_name'), function ($violator_first_name_query) use ($request) {
+                            $violator_first_name_query->where('first_name', 'ilike', "%{$request->query('first_name')}%");
+                        })
+                        ->when($request->query('middle_name'), function ($violator_middle_name_query) use ($request) {
+                            $violator_middle_name_query->orWhere('middle_name', 'ilike', "%{$request->query('middle_name')}%");
+                        })
+                        ->when($request->query('last_name'), function ($violator_last_name_query) use ($request) {
+                            $violator_last_name_query->orWhere('last_name', 'ilike', "%{$request->query('last_name')}%");
+                        });
+                })
+                ->paginate($perPage);
+
+            return response()->json(TicketResource::collection($tickets));
+        */
 
     }
 
