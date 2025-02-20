@@ -13,11 +13,12 @@ export default computed(() => [
 		children: [
 			{
 				path: "/tickets",
-				name: "tickets-index"
-				component: () => import("@/pages/tickets/index.vue")
+				name: "tickets-index",
+				component: () => import("@/pages/tickets/index.vue"),
 				meta: {
 					title: "Tickets: Index",
 				},
+
 			},
 			{
 				path: "/tickets/view/:id?",
