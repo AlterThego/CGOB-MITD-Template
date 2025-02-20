@@ -9,11 +9,13 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Role;
 
-class UserSeeder extends Seeder {
+class UserSeeder extends Seeder
+{
     /**
      * Run the database seeds.
      */
-    public function run(): void {
+    public function run(): void
+    {
         $users = [
             [
                 "username" => "danieltejano",
