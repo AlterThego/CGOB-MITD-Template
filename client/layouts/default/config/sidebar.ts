@@ -37,7 +37,7 @@ export default computed<Array<MenuOption>>(() => {
     {
       label: "Violations",
       icon: "tabler:notebook"            ,
-      to: {name: 'tickets-index'},
+      to: {name: 'violations-index'},
     }
   ];
 });
