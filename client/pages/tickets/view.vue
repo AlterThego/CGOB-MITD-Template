@@ -1,16 +1,67 @@
 <script setup lang = "ts">
     // IMPORT
-    import { genderData } from './data/gender';
+    import { genderData, genderFetchAll } from './data/gender';
+    import { modalToggle, modalToggleDefault, modalFormData, modalFormDataDefault, modalFormCNMaxLength, modalFormSchema } from './data/modal';
     import { statusData } from './data/status';
-    import { modalToggle, modalFormData, modalFormCNMaxLength, modalFormSchema } from './data/modal-shared';
-    import { modalUpdate, modalDelete, modalRestore } from './data/modal-update';
-    import { ticketDataSingle, ticketFetchSingle } from './data/ticket';
+
+    // DATA
+    const { $api } = useNuxtApp();
+
+    const route = useRoute();
+    const toast = useToast();
+
+    // TICKET
+    const ticketDataSingle = ref();
+    const ticketFetchSingle = () => {
+        $api.get(`tickets/${route.params.id}`)
+            .then((response) => {
+                ticketDataSingle.value = response.data;
+                modalFormData.value = ticketDataSingle.value;
+            });
+    };
+    const ticketUpdate = () => {
+        $api.put(`tickets/${route.params.id}`, modalFormData.value)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
+
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was updated successfully.',
+                });
+            });
+    };
+    const ticketDelete = () => {
+        $api.delete(`tickets/${route.params.id}`)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
+
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was deleted successfully.',
+                });
+            });
+    };
+    const ticketRestore = () => {
+        $api.patch(`tickets/${route.params.id}`)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
+
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was restored successfully.',
+                });
+            });
+    };
 
     // LOAD
     onMounted(() => {
+        genderFetchAll();
         ticketFetchSingle();
     });
-
+    
     // AVATAR
     const avatarSeed = computed(() => {
         return ticketDataSingle.value?.violator.first_name.replaceAll(' ', '+');
@@ -60,7 +111,10 @@
                         Back to List
                     </TButton>
                 </div>
-                <div class = "w-full">
+                <div
+                    class = "w-full"
+                    v-show = "(ticketDataSingle?.deleted_at === null)"
+                >
                     <TButton
                         icon = "i-heroicons-arrow-path"
                         class = "justify-center w-full"
@@ -72,26 +126,32 @@
                         Update
                     </TButton>
                 </div>
-                <div class = "w-full">
+                <div
+                    class = "w-full"
+                    v-show = "(ticketDataSingle?.deleted_at !== null)"
+                >
                     <TButton
                         icon = "i-heroicons-archive-box"
                         class = "justify-center w-full"
                         color = "orange"
                         variant = "outline"
                         :disabled = "(ticketDataSingle?.deleted_at !== null) ? false : true"
-                        @click = "modalRestore"
+                        @click = "ticketRestore"
                     >
                         Restore
                     </TButton>
                 </div>
-                <div class = "w-full">
+                <div
+                    class = "w-full"
+                    v-show = "(ticketDataSingle?.deleted_at === null)"
+                >
                     <TButton
                         icon = "i-heroicons-trash"
                         class = "justify-center w-full"
                         color = "red"
                         variant = "outline"
                         :disabled = "(ticketDataSingle?.deleted_at !== null) ? true : false"
-                        @click = "modalDelete"
+                        @click = "ticketDelete"
                     >
                         Delete
                     </TButton>
@@ -125,7 +185,6 @@
                                 autocomplete = "off"
                                 v-model = "modalFormData.citation_number"
                                 :maxlength = "modalFormCNMaxLength"
-                                :model-value = "ticketDataSingle?.citation_number"
                             />
                         </TFormGroup>
                         <TFormGroup class = "w-full" label = "Status" name = "status">
@@ -135,7 +194,6 @@
                                 option-attribute = "name"
                                 v-model = "modalFormData.status"
                                 :options = "statusData"
-                                :model-value = "ticketDataSingle?.status"
                                 :search-attributes = "['name']"
                                 @update:modelValue = "(selected) => modalFormData.status = selected ? String(selected.name) : ''"
                             >
@@ -149,7 +207,6 @@
                                 placeholder = "John"
                                 autocomplete = "off"
                                 v-model = "modalFormData.violator.first_name"
-                                :model-value = "ticketDataSingle?.violator.first_name"
                             />
                         </TFormGroup>
                         <TFormGroup class = "w-full" label = "Middle Name">
@@ -157,7 +214,6 @@
                                 placeholder = "Michael"
                                 autocomplete = "off"
                                 v-model = "modalFormData.violator.middle_name"
-                                :model-value = "ticketDataSingle?.violator.middle_name"
                             />
                         </TFormGroup>
                     </div>
@@ -168,21 +224,16 @@
                                 placeholder = "Doe"
                                 autocomplete = "off"
                                 v-model = "modalFormData.violator.last_name"
-                                :model-value = "ticketDataSingle?.violator.last_name"
                             />
                         </TFormGroup>
                         <TFormGroup class = "w-full" label = "Gender">
-                            <TInputMenu
-                                by = "id"
+                            <TSelect
                                 placeholder = "Select gender"
+                                value-attribute = "id"
                                 option-attribute = "name"
                                 v-model = "modalFormData.violator.gender_id"
                                 :options = "genderData"
-                                :model-value = "ticketDataSingle?.violator.gender_id"
-                                :search-attributes = "['name']"
-                                @update:modelValue = "(selected) => modalFormData.violator.gender_id = selected ? selected.id : null"
-                            >
-                            </TInputMenu>
+                            />
                         </TFormGroup>
                     </div>
                     <!-- SUBMIT -->
@@ -194,7 +245,7 @@
                             class = "justify-center w-full"
                             color = "blue"
                             variant = "outline"
-                            @click = "modalUpdate"
+                            @click = "ticketUpdate"
                         >
                             Update
                         </TButton>
