@@ -14,17 +14,22 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LogController;
 
+use App\Http\Controllers\GenderController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ViolatorController;
 
-Route::prefix("tickets")->group(function () {
+Route::prefix("genders")->group(function() {
+    Route::get("", [GenderController::class, "list"])->name("genders.list");
+});
+
+Route::prefix("tickets")->group(function() {
     Route::get("", [TicketController::class, "list"])->name("tickets.list");
     Route::get("{ticket}", [TicketController::class, "show"])->name("tickets.name");
     Route::post("", [TicketController::class, "create"])->name("tickets.create");
     Route::put("{ticket}", [TicketController::class, "update"])->name("tickets.update");
     Route::delete("{ticket}", [TicketController::class, "delete"])->name("tickets.delete");
-    Route::patch("{ticket}", [TicketController::class, "restore"])->name("tickets.restore");
+    Route::patch("{ticket}", [TicketController::class, "retore"])->name("tickets.restore");
 });
 
 Route::prefix("violators")->group(function () {

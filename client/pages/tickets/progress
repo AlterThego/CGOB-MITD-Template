@@ -1,0 +1,10 @@
+gender.ts           SUPER CLEAN
+modal.ts            SUPER CLEAN
+status.ts           SUPER CLEAN
+ticket.ts           PENDING REMOVAL
+
+index.vue           SUPER CLEAN
+view.vue            
+
+    const ticketDataStatus = ref();
+    ticketDataStatus.value = ticketDataSingle.value.deleted_at === null;

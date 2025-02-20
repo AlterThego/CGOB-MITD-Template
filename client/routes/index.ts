@@ -9,33 +9,28 @@ export * from "./settings";
 
 export default computed(() => [
   // Debug
+	{
+		children: [
+			{
+				path: "/tickets",
+				name: "tickets-index",
+				component: () => import("@/pages/tickets/index.vue"),
+				meta: {
+					title: "Tickets: Index",
+				},
+			},
+			{
+				path: "/tickets/view/:id?",
+				name: "tickets-view",
+				component: () => import("@/pages/tickets/view.vue"),
+				meta: {
+					title: "Tickets: View",
+				},
+			},
+		],
+	},
   {
     children: [
-      {
-        path: "/tickets",
-        name: "tickets-index",
-        component: () => import("~/pages/tickets/index.vue"),
-        meta: {
-          title: "Tickets: Index",
-        },
-      },
-      {
-        path: "/tickets/view/:id?",
-        name: "tickets-view",
-        component: () => import("~/pages/tickets/view.vue"),
-        meta: {
-          title: "Tickets: View",
-        },
-      },
-
-      {
-        path: "/tickets/view/:id?",
-        name: "tickets-view",
-        component: () => import("~/pages/tickets/view.vue"),
-        meta: {
-          title: "Tickets: View",
-        },
-      },
       {
         path: "/violators",
         name: "violators-index",
@@ -60,22 +55,6 @@ export default computed(() => [
           title: "Violators: Bin",
         },
       },
-      /*{
-				path: "/tickets/update",
-				name: "tickets-update",
-				component: () => import("@/pages/ticket/Update.vue"),
-				meta: {
-					title: "Tickets: Update",
-				},
-			},
-			{
-				path: "/tickets/delete",
-				name: "tickets-delete",
-				component: () => import("@/pages/ticket/Delete.vue"),
-				meta: {
-					title: "Tickets: Delete",
-				},
-			},*/
     ],
   },
   {

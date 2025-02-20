@@ -1,252 +1,257 @@
-<script setup lang="ts">
+<script setup lang = "ts">
+    // IMPORT
+    import { genderData, genderFetchAll } from './data/gender';
+    import { modalToggle, modalToggleDefault, modalFormData, modalFormDataDefault, modalFormCNMaxLength, modalFormSchema } from './data/modal';
+    import { statusData } from './data/status';
 
-// import { tickets } from './datasets/dummy';
-// const ticket = computed(() => {
-//     return tickets.find(ticket => ticket.id == parseInt(route.params.id as string));
-// });
+    // DATA
+    const { $api } = useNuxtApp();
 
-import { TAvatar, TButton } from '#components';
+    const route = useRoute();
+    const toast = useToast();
 
-const { $api } = useNuxtApp();
-const route = useRoute();
-const router = useRouter();
-const ticket = ref();
-const toast = useToast()
+    // TICKET
+    const ticketDataSingle = ref();
+    const ticketFetchSingle = () => {
+        $api.get(`tickets/${route.params.id}`)
+            .then((response) => {
+                ticketDataSingle.value = response.data;
+                modalFormData.value = ticketDataSingle.value;
+            });
+    };
+    const ticketUpdate = () => {
+        $api.put(`tickets/${route.params.id}`, modalFormData.value)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
 
-const avatarSeed = computed(() => {
-    return ticket.value?.violator.first_name.replaceAll(' ', '+');
-});
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was updated successfully.',
+                });
+            });
+    };
+    const ticketDelete = () => {
+        $api.delete(`tickets/${route.params.id}`)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
 
-function useDeleteToast() {
-    toast.add({
-        title: 'Success',
-        description: 'The ticket was deleted successfully.',
-    })
-}
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was deleted successfully.',
+                });
+            });
+    };
+    const ticketRestore = () => {
+        $api.patch(`tickets/${route.params.id}`)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
 
-function showTicket() {
-    $api.get(`tickets/${route.params.id}`)
-        .then((response) => {
-            ticket.value = response.data
-        })
-}
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was restored successfully.',
+                });
+            });
+    };
 
-function updateTicket() {
-    $api.put(`tickets/${route.params.id}`)
-    // .then((response) => {
-    //     ticket.value = response.data
-    // })
-
-    toast.add({
-        title: 'Success',
-        description: 'The ticket was updated successfully.',
-    })
-}
-
-function deleteTicket() {
-    $api.delete(`tickets/${route.params.id}`)
-        .then(() => {
-            useDeleteToast()
-            router.push('/tickets')
-        })
-}
-
-onMounted(() => {
-    showTicket()
-})
-
-// UpdateTicketModal
-const isOpenUpdateTicket = ref(false);
-
-// Citation number max values
-const citationMaxLength = 11
-
-// Genders
-const genders = [
-    { id: 1, name: 'Male' },
-    { id: 2, name: 'Female' },
-    { id: 3, name: 'LGBTQQIP2SAA' },
-    { id: 4, name: 'Attack Helicopter' },
-]
-
-// Ticket statuses
-const statuses = [
-    { id: 1, name: 'Active' },
-    { id: 2, name: 'Pending' },
-    { id: 3, name: 'Disposed' },
-]
-
+    // LOAD
+    onMounted(() => {
+        genderFetchAll();
+        ticketFetchSingle();
+    });
+    
+    // AVATAR
+    const avatarSeed = computed(() => {
+        return ticketDataSingle.value?.violator.first_name.replaceAll(' ', '+');
+    });
 </script>
 
-
-
-
-
-
-<!-- <template>
-    <div class="custom">
-        <div class="wrapper">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col">
-                        <h1>Ticket Details</h1>
-                        <span class="bold">ID No. </span>{{ ticket?.id }}
-                        |
-                        <span class="bold">Citation No. </span>{{ ticket?.citation_number }}
-                        <hr />
-                        <br />
-                        <br />
-                        <nuxt-link :to="{ name: 'tickets-index' }">
-                            Return To Index
-                        </nuxt-link>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-3">
-                        <img v-bind:src="`https://api.dicebear.com/9.x/avataaars/svg?seed=${avatarSeed}`" alt=""
-                            srcset="" class="aspect-square w-32 h-32" />
-                        <ul>
-                            <h1>Ticket details:</h1>
-                            <li>ID: {{ ticket?.id }}</li>
-                            <li>Citation Number: {{ ticket?.citation_number }}</li>
-                            <li>Status: {{ ticket?.status }}</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</template> -->
-
-
 <template>
-    <div class="max-w-screen-sm mx-auto w-full py-6">
-        <TCard class="shadow-lg border border-gray-200">
+    <div class = "p-4">
+        <!-- CARD-->
+        <TCard class = "max-w-screen-sm mx-auto w-full">
+            <!-- HEADER -->
             <template #header>
-                <h2 class="text-lg font-semibold text-gray-800">Violation Ticket</h2>
+                <h1 class = "font-bold">Violation Ticket</h1>
             </template>
-
-            <div class="flex items-center gap-4 p-4">
-                <!-- User Avatar -->
-                <TAvatar size="xl" :src="`https://api.dicebear.com/9.x/avataaars/svg?seed=${avatarSeed}`"
-                    alt="User Avatar" />
-
-                <!-- Ticket Information -->
-                <div class="flex-row gap-y-10">
-                    <p class="text-gray-600 text-xs">Ticket ID: <span class="font-medium">{{ ticket?.id }}</span></p>
-
-                    <h1 class="text-2xl font-semibold text-gray-900">{{ ticket?.violator.full_name }}</h1>
-
-                    <p class="text-gray-600 text-xs">Gender: <span class="font-sm">{{
-                        ticket?.violator.gender
-                            }}</span></p>
-                    <p class="text-gray-600 text-sm">Citation Number: <span class="font-bold">{{
-                        ticket?.citation_number
-                            }}</span></p>
-                    <p class="text-red-500 text-sm font-semibold"> {{ ticket?.status }}</p>
+            <!-- TICKET -->
+            <div class = "flex gap-4 justify-between p-4">
+                <TAvatar
+                    alt = "User Avatar"
+                    size = "xl"
+                    :src = "`https://api.dicebear.com/9.x/avataaars/svg?seed=${avatarSeed}`"
+                />
+                <div class = "w-full">
+                    <p class = "text-sm">ID # <span class = "font-bold">{{ ticketDataSingle?.id }}</span></p>
+                    <p class = "text-sm">Citation # <span class = "font-bold">{{ ticketDataSingle?.citation_number }}</span></p>
+                    <TBadge
+                        size = "xs"
+                        variant = "outline"
+                        :label = "(ticketDataSingle?.deleted_at !== null) ? 'Soft Deleted' : ticketDataSingle?.status"
+                        :color = "(ticketDataSingle?.deleted_at !== null) ? 'gray' : (ticketDataSingle?.status === 'Active') ? 'green' : (ticketDataSingle?.status === 'Pending') ? 'orange' : 'red'"
+                    />
+                    <hr class = "my-4"/>
+                    <h1 class = "font-bold">{{ ticketDataSingle?.violator.full_name }}</h1>
+                    <p class = "text-sm">Gender : <span class = "font-bold">{{ ticketDataSingle?.violator.gender }}</span></p>
                 </div>
             </div>
-
-            <template #footer>
-                <div class="flex items-center gap-3 justify-center py-3">
-                    <TButton color="gray" variant="outline" icon="i-heroicons-arrow-left"
-                        :to="{ name: 'tickets-index' }">
+            <!-- ACTION -->
+            <div class = "flex gap-4 justify-between p-4">
+                <div class = "w-full">
+                    <TButton
+                        icon = "i-heroicons-arrow-left"
+                        class = "justify-center"
+                        color = "gray"
+                        variant = "outline"
+                        :to = "{ name: 'tickets-index' }"
+                        block
+                    >
                         Back to List
                     </TButton>
-                    <TButton color="primary" variant="outline" icon="i-heroicons-pencil-square-20-solid"
-                        @click="isOpenUpdateTicket = true">
+                </div>
+                <div
+                    class = "w-full"
+                    v-show = "(ticketDataSingle?.deleted_at === null)"
+                >
+                    <TButton
+                        icon = "i-heroicons-arrow-path"
+                        class = "justify-center w-full"
+                        color = "blue"
+                        variant = "outline"
+                        :disabled = "(ticketDataSingle?.deleted_at !== null) ? true : false"
+                        @click = "modalToggle = true"
+                    >
                         Update
                     </TButton>
-                    <TButton color="red" icon="i-heroicons-trash" @click="deleteTicket">
-                        Delete
-                    </TButton>
-                    <TButton color="gray" variant="outline" icon="i-heroicons-archive-box" :disabled="true">
+                </div>
+                <div
+                    class = "w-full"
+                    v-show = "(ticketDataSingle?.deleted_at !== null)"
+                >
+                    <TButton
+                        icon = "i-heroicons-archive-box"
+                        class = "justify-center w-full"
+                        color = "orange"
+                        variant = "outline"
+                        :disabled = "(ticketDataSingle?.deleted_at !== null) ? false : true"
+                        @click = "ticketRestore"
+                    >
                         Restore
                     </TButton>
                 </div>
-
-                <TModal v-model="isOpenUpdateTicket" prevent-close>
-                    <TCard
-                        :ui="{ base: 'h-full flex flex-col', ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
-                        <div clas="border-b border">
-                            <div class="flex items-center justify-between border-b pb-2">
-                                <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-                                    Update Ticket
-                                </h3>
-                                <TButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1"
-                                    @click="isOpenUpdateTicket = false" />
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-x-4">
-                            <div class="col-span py-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Citation Number
-                                </label>
-                                <TInput :maxlength="citationMaxLength" class="w-full" placeholder="12345678900"
-                                    :model-value="ticket?.citation_number">
-                                    <template #trailing>
-                                        <span class="text-xs text-gray-500 dark:text-gray-400"></span>
-                                    </template>
-                                </TInput>
-                                <!-- <TInput placeholder="John" v-model="form.violator.first_name" /> -->
-                            </div>
-
-                            <div class="col-span py-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    First Name
-                                </label>
-                                <TInput placeholder="John" :model-value="ticket?.violator.first_name" />
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-x-4">
-                            <div class="col-span py-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Middle Name
-                                </label>
-                                <TInput placeholder="Michael" :model-value="ticket?.violator.middle_name" />
-                            </div>
-
-                            <div class="col-span py-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Last Name
-                                </label>
-                                <TInput placeholder="Doe" :model-value="ticket?.violator.last_name" />
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-x-4">
-                            <div class="col-span py-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Gender
-                                </label>
-                                <TInputMenu :options="genders" placeholder="Select a gender" by="id"
-                                    option-attribute="name" :search-attributes="['name']"
-                                    :model-value="ticket?.violator.gender">
-                                </TInputMenu>
-                            </div>
-
-                            <div class="col-span py-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                    Status
-                                </label>
-                                <TInputMenu :options="statuses" placeholder="Set the status" by="id"
-                                    option-attribute="name" :search-attributes="['name']" :model-value="ticket?.status">
-                                </TInputMenu>
-                            </div>
-                        </div>
-
-
-
-                        <div class="flex w-full justify-end px-4">
-                            <div class="py-2">
-                                <TButton label="Submit" @click="updateTicket()" />
-                            </div>
-                        </div>
-                    </TCard>
-                </TModal>
-
-            </template>
+                <div
+                    class = "w-full"
+                    v-show = "(ticketDataSingle?.deleted_at === null)"
+                >
+                    <TButton
+                        icon = "i-heroicons-trash"
+                        class = "justify-center w-full"
+                        color = "red"
+                        variant = "outline"
+                        :disabled = "(ticketDataSingle?.deleted_at !== null) ? true : false"
+                        @click = "ticketDelete"
+                    >
+                        Delete
+                    </TButton>
+                </div>
+            </div>
         </TCard>
+        <!-- MODAL -->
+        <TModal v-model = "modalToggle" prevent-close>
+            <TCard class = "max-w-screen-sm mx-auto w-full">
+                <!-- HEADER | CLOSE-->
+                <template #header>
+                    <h1 class = "font-bold">Update Ticket</h1>
+                    <TButton
+                        icon = "i-heroicons-x-mark"
+                        class = "m-0 p-0"
+                        color = "gray"
+                        variant = "ghost"
+                        @click = "modalToggle = false"
+                    />
+                </template>
+                <!-- FORM -->
+                <TForm
+                    :state = "modalFormData"
+                    :schema = "modalFormSchema"
+                >
+                    <!-- CITATION NUMBER | STATUS -->
+                    <div class = "flex gap-4 justify-between p-4">
+                        <TFormGroup class = "w-full" label = "Citation Number" name = "citation_number">
+                            <TInput
+                                placeholder = "123-4567-8910"
+                                autocomplete = "off"
+                                v-model = "modalFormData.citation_number"
+                                :maxlength = "modalFormCNMaxLength"
+                            />
+                        </TFormGroup>
+                        <TFormGroup class = "w-full" label = "Status" name = "status">
+                            <TInputMenu
+                                by = "id"
+                                placeholder = "Select status"
+                                option-attribute = "name"
+                                v-model = "modalFormData.status"
+                                :options = "statusData"
+                                :search-attributes = "['name']"
+                                @update:modelValue = "(selected) => modalFormData.status = selected ? String(selected.name) : ''"
+                            >
+                            </TInputMenu>
+                        </TFormGroup>
+                    </div>
+                    <!-- FIRST NAME | MIDDLE NAME -->
+                    <div class = "flex gap-4 justify-between p-4">
+                        <TFormGroup class = "w-full" label = "First Name">
+                            <TInput
+                                placeholder = "John"
+                                autocomplete = "off"
+                                v-model = "modalFormData.violator.first_name"
+                            />
+                        </TFormGroup>
+                        <TFormGroup class = "w-full" label = "Middle Name">
+                            <TInput
+                                placeholder = "Michael"
+                                autocomplete = "off"
+                                v-model = "modalFormData.violator.middle_name"
+                            />
+                        </TFormGroup>
+                    </div>
+                    <!-- LAST NAME | GENDER -->
+                    <div class = "flex gap-4 justify-between p-4">
+                        <TFormGroup class = "w-full" label = "Last Name">
+                            <TInput
+                                placeholder = "Doe"
+                                autocomplete = "off"
+                                v-model = "modalFormData.violator.last_name"
+                            />
+                        </TFormGroup>
+                        <TFormGroup class = "w-full" label = "Gender">
+                            <TSelect
+                                placeholder = "Select gender"
+                                value-attribute = "id"
+                                option-attribute = "name"
+                                v-model = "modalFormData.violator.gender_id"
+                                :options = "genderData"
+                            />
+                        </TFormGroup>
+                    </div>
+                    <!-- SUBMIT -->
+                    <div class = "flex justify-between p-4">
+                        <TButton
+                            icon = "i-heroicons-arrow-path"
+                            size = "sm"
+                            type = "submit"
+                            class = "justify-center w-full"
+                            color = "blue"
+                            variant = "outline"
+                            @click = "ticketUpdate"
+                        >
+                            Update
+                        </TButton>
+                    </div>
+                </TForm>
+            </TCard>
+        </TModal>
     </div>
 </template>

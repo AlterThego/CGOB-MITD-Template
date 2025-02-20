@@ -1,277 +1,237 @@
-<script setup lang="ts">
-// import { tickets } from './datasets/dummy';
+<script setup lang = "ts">
+    // IMPORT
+    import { genderData, genderFetchAll } from './data/gender';
+    import { modalToggle, modalToggleDefault, modalFormData, modalFormDataDefault, modalFormCNMaxLength, modalFormSchema } from './data/modal';
+    import { statusData } from './data/status';
 
-import { z } from 'zod'
+    // DATA
+    const router = useRouter();
 
-
-const { $api } = useNuxtApp();
-const router = useRouter();
-const tickets = ref([])
-const toast = useToast()
-
-type Ticket = {
-    id: number
-    citation_number: string
-    status: string
-    violator: {
+    // TICKET
+    type Ticket = {
         id: number,
-        first_name: string,
-        middle_name: string,
-        last_name: string,
-        gender: string,
-        full_name: string
-    },
-    created_at: string
-}
+        citation_number: string,
+        status: string,
+        violator: {
+            id: number,
+            first_name: string,
+            middle_name: string,
+            last_name: string,
+            gender: string,
+            full_name: string,
+        },
+        created_at: string,
+    };
 
-const form = ref({
-    citation_number: '',
-    status: '',
-    violator: {
-        first_name: '',
-        middle_name: '',
-        last_name: '',
-        gender_id: ''
-    }
-})
+    const ticketDataAll = ref([]);
+    const ticketColumns = [{
+            label: 'ID',
+            key: 'id',
+            sortable: true,
+        }, {
+            label: 'Violator',
+            key: 'violator.full_name',
+            sortable: true,
+        }, {
+            label: 'Citation Number',
+            key: 'citation_number',
+            sortable: true,
+        }, {
+            label: 'Created At',
+            key: 'created_at',
+            sortable: true,
+        }, {
+            label: 'Status',
+            key: 'status',
+            sortable: true,
+        }, {
+            key: 'actions',
+        },
+    ];
 
-const PersonRow = defineAsyncComponent(() => import("./components/index-row.vue"));
+    const ticketFetchAll = async () => {
+        const { data } = await search();
 
-function fetchTicketList() {
-    $api.get('tickets')
-        .then((response) => {
-            tickets.value = response.data
-        })
-}
+        ticketDataAll.value = data.data;
+    };
+    const ticketCreate = () => {
+        const { $api } = useNuxtApp();
 
+        const toast = useToast();
 
-function useCreateToast() {
-    toast.add({
-        title: 'Success',
-        description: 'The ticket was created successfully.',
-    })
-}
+        $api.post('tickets', modalFormData.value)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
 
-function createTicket() {
-    $api.post('tickets', form.value)
-        // .then((response) => {
-        //     console.log(response.data)
-        //     tickets.value = response.data
-        // })
-
-        .then(() => {
-            router.push('/tickets').then(() => {
-                //window.location.reload();
-                useCreateToast();
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was created successfully.',
+                });
+                ticketFetchAll();
             });
+    };
+    const ticketAction = (row : Ticket) => [
+        [{
+            label: 'View',
+            icon: 'i-heroicons-user',
+            click: () => {
+                router.push({ name: 'tickets-view', params: { id: row.id, citation_number: row.citation_number, }, });
+            },
+        }],
+    ];
 
-        })
-}
+    // PAGINATION
+    const { search, pagination } = useSearcher({
+        api: 'tickets',
+        limit: 25, 
+        method: 'get',
+        onPageChange: ticketFetchAll,
+    });
+    // @ts-ignore
+    watch(() => pagination.page, async() => await search());
 
-onMounted(() => {
-    fetchTicketList();
-})
-
-
-// Column Labels
-const columns = [
-    {
-        label: 'ID',
-        key: 'id',
-        sortable: true,
-    },
-    {
-        label: 'Violator',
-        key: 'violator.full_name',
-        sortable: true
-    },
-    {
-        label: 'Citation Number',
-        key: 'citation_number',
-        sortable: true
-    },
-    {
-        label: 'Status',
-        key: 'status'
-    },
-    {
-        label: 'Created At',
-        key: 'created_at',
-        sortable: true
-    },
-    {
-        key: 'actions'
-    },
-]
-
-const expand = ref({
-    openedRows: [],
-    row: null
-})
-
-
-// Model state
-const isOpenCreateTicket = ref(false)
-
-// Citation number max values
-const maxCitationNumberLength = 13
-
-// Genders
-const genders = [
-    { id: 1, name: 'Male' },
-    { id: 2, name: 'Female' },
-    { id: 3, name: 'LGBTQQIP2SAA' },
-    { id: 4, name: 'Attack Helicopter' },
-]
-
-
-// Settings for each row
-const actions = (row: Ticket) => [
-    [{
-        label: 'View',
-        icon: 'i-heroicons-user-20-solid',
-        click: () => {
-            // console.log('Pushing to Ticket View:', row.id)
-            router.push({ name: 'tickets-view', params: { id: row.id, citation_number: row.citation_number } });
-        }
-    }]
-]
-
-
-// Filters
-const todoStatus = [{
-    key: 'active',
-    label: 'Active',
-    value: 1
-}, {
-    key: 'pending',
-    label: 'Pending',
-    value: 2,
-}, {
-    key: 'disposed',
-    label: 'Disposed',
-    value: 3,
-}]
-
-const selectedStatus = ref([])
-
-// Ticket statuses
-const statuses = [
-    { id: 1, name: 'Active' },
-    { id: 2, name: 'Pending' },
-    { id: 3, name: 'Disposed' },
-]
-
-const ticketSchema = z.object({
-    citation_number: z.string()
-        .min(13, 'Must be in the format 123-4567-8910')
-        .regex(/^\d{3}-\d{4}-\d{4}$/, 'Must match format 123-4567-8910'),
-    first_name: z.string(),
-    middle_name: z.string(),
-    last_name: z.string(),
-    gender_id: z.number(),
-    status: z.string()
-
-});
-
-type TicketSchema = z.output<typeof ticketSchema>
-
+    // LOAD
+    onMounted(() => {
+        genderFetchAll();
+        ticketFetchAll();
+    });
 </script>
 
 <template>
-    <div class="max-w-screen-xl mx-auto w-full py-5">
-        <header class="flex justify-between items-center py-2 px-8">
-            <span class="">
-                <h1 class="font-bold">Tickets</h1>
-            </span>
-            <span class="flex gap-x-4">
-                <TButton icon="i-heroicons-pencil-square" size="sm" color="primary" variant="outline"
-                    label="Create New Ticket" :trailing="false" @click="isOpenCreateTicket = true" />
-                <TSelectMenu v-model="selectedStatus" :options="todoStatus" multiple placeholder="Status"
-                    class="w-40" />
-            </span>
-
+    <div class = "max-w-screen-xl mx-auto p-8 w-full">
+        <!-- HEADER -->
+        <header class = "flex items-center justify-between py-2">
+            <h1 class = "font-bold">Tickets</h1>
+            <TButton
+                icon = "i-heroicons-pencil-square"
+                size = "sm"
+                color = "emerald"
+                label = "Create New Ticket"
+                variant = "outline"
+                @click = "modalToggle = true"
+            />
         </header>
-        <TTable :loading-state="{ icon: 'i-heroicons-arrow-path-20-solid', label: 'Loading...' }"
-            v-model:expand="expand" :rows="tickets" :columns="columns">
-            <template #expand="{ row }">
-                <div class="p-4">
-                    <pre>{{ row }}</pre>
-                </div>
+        <!-- TABLE -->
+        <TTable
+            :rows = "ticketDataAll"
+            :columns = "ticketColumns"
+        >
+            <template #status-data = "{ row }">
+                <TBadge
+                    size = "xs"
+                    class = "flex justify-center"
+                    variant = "outline"
+                    :label = "(row.deleted_at !== null) ? 'Soft Deleted' : row.status"
+                    :color = "(row.deleted_at !== null) ? 'gray' : (row.status === 'Active') ? 'green' : (row.status === 'Pending') ? 'orange' : 'red'"
+                />
             </template>
-
-            <template #actions-data="{ row }">
-                <TDropdown :items="actions(row)">
-                    <TButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
+            <template #actions-data = "{ row }">
+                <TDropdown :items = "ticketAction(row)">
+                    <TButton
+                        icon = "i-heroicons-ellipsis-horizontal"
+                        color = "gray"
+                        variant = "ghost"
+                    />
                 </TDropdown>
             </template>
         </TTable>
-
-        <TModal v-model="isOpenCreateTicket" prevent-close>
-            <TCard
-                :ui="{ base: 'h-full flex flex-col', ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
-                <div clas="border-b border">
-                    <div class="flex items-center justify-between border-b pb-2">
-                        <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-                            Create New Ticket
-                        </h3>
-                        <TButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1"
-                            @click="isOpenCreateTicket = false" />
+        <!-- PAGINATION -->
+        <TPagination
+            v-model = "pagination.page"
+            :total = "pagination.total"
+            :page-count = "pagination.limit"
+        />
+        <!-- MODAL -->
+        <TModal v-model = "modalToggle" prevent-close>
+            <TCard class = "max-w-screen-sm mx-auto w-full">
+                <!-- HEADER | CLOSE-->
+                <template #header>
+                    <h1 class = "font-bold">Create Ticket</h1>
+                    <TButton
+                        icon = "i-heroicons-x-mark"
+                        class = "m-0 p-0"
+                        color = "gray"
+                        variant = "ghost"
+                        @click = "modalToggle = false"
+                    />
+                </template>
+                <!-- FORM -->
+                <TForm
+                    :state = "modalFormData"
+                    :schema = "modalFormSchema"
+                >
+                    <!-- CITATION NUMBER | STATUS -->
+                    <div class = "flex gap-4 justify-between p-4">
+                        <TFormGroup class = "w-full" label = "Citation Number" name = "citation_number">
+                            <TInput
+                                placeholder = "123-4567-8910"
+                                autocomplete = "off"
+                                v-model = "modalFormData.citation_number"
+                                :maxlength = "modalFormCNMaxLength"
+                            />
+                        </TFormGroup>
+                        <TFormGroup class = "w-full" label = "Status" name = "status">
+                            <TSelect
+                                placeholder = "Select status"
+                                v-model = "modalFormData.status"
+                                :options = "statusData"
+                            />
+                        </TFormGroup>
                     </div>
-                </div>
-
-                <TForm :schema="ticketSchema" :state="form" class="space-y-4z">
-
-                    <div class="flex-row">
-                        <div class="flex justify-between gap-x-4 mb-6 mt-3">
-                            <TFormGroup class="basis-2/3  w-full" label="Citation Number" name="citation_number">
-                                <TInput v-model="form.citation_number" :maxlength="maxCitationNumberLength"
-                                    class="w-full" placeholder="123-4567-8910" autocomplete="off" />
-                            </TFormGroup>
-                            <TFormGroup class="basis-1/3 w-full" label="Status" name="status">
-                                <TInputMenu v-model="form.status" :options="statuses" placeholder="Set the status"
-                                    by="id" option-attribute="name" :search-attributes="['name']"
-                                    @update:modelValue="(selected) => form.status = selected ? String(selected.name) : ''">
-                                </TInputMenu>
-                            </TFormGroup>
-                        </div>
-
-                        <!-- Removed property name="" for now -->
-                        <div class="flex justify-between gap-x-4 mb-6">
-                            <TFormGroup class="w-full" label="First Name">
-                                <TInput v-model="form.violator.first_name" class="w-full" placeholder="John"
-                                    autocomplete="off" />
-                            </TFormGroup>
-                            <TFormGroup class="w-full" label="Middle Name">
-                                <TInput v-model="form.violator.middle_name" class="w-full" placeholder="Michael"
-                                    autocomplete="off" />
-                            </TFormGroup>
-                        </div>
-
-                        <div class="flex justify-between gap-x-4 mb-6">
-                            <TFormGroup class="w-full" label="Last Name">
-                                <TInput v-model="form.violator.last_name" class="w-full" placeholder="Doe"
-                                    autocomplete="off" />
-                            </TFormGroup>
-                            <TFormGroup class="w-full" label="Gender">
-                                <TInputMenu v-model="form.violator.gender_id" :options="genders"
-                                    placeholder="Select a gender" by="id" option-attribute="name"
-                                    :search-attributes="['name']"
-                                    @update:modelValue="(selected) => form.violator.gender_id = selected ? selected.id : null">
-                                </TInputMenu>
-                            </TFormGroup>
-                        </div>
+                    <!-- FIRST NAME | MIDDLE NAME -->
+                    <div class = "flex gap-4 justify-between p-4">
+                        <TFormGroup class = "w-full" label = "First Name">
+                            <TInput
+                                placeholder = "John"
+                                autocomplete = "off"
+                                v-model = "modalFormData.violator.first_name"
+                            />
+                        </TFormGroup>
+                        <TFormGroup class = "w-full" label = "Middle Name">
+                            <TInput
+                                placeholder = "Michael"
+                                autocomplete = "off"
+                                v-model = "modalFormData.violator.middle_name"
+                            />
+                        </TFormGroup>
                     </div>
-                    <TButton type="submit" @click="createTicket">
-                        Submit
-                    </TButton>
+                    <!-- LAST NAME | GENDER -->
+                    <div class = "flex gap-4 justify-between p-4">
+                        <TFormGroup class = "w-full" label = "Last Name">
+                            <TInput
+                                placeholder = "Doe"
+                                autocomplete = "off"
+                                v-model = "modalFormData.violator.last_name"
+                            />
+                        </TFormGroup>
+                        <TFormGroup class = "w-full" label = "Gender">
+                            <TSelect
+                                placeholder = "Select gender"
+                                value-attribute = "id"
+                                option-attribute = "name"
+                                v-model = "modalFormData.violator.gender_id"
+                                :options = "genderData"
+                            />
+                        </TFormGroup>
+                    </div>
+                    <!-- SUBMIT -->
+                    <div class = "flex justify-between p-4">
+                        <TButton
+                            icon = "i-heroicons-plus"
+                            size = "sm"
+                            type = "submit"
+                            class = "justify-center w-full"
+                            color = "emerald"
+                            value = "Submit"
+                            variant = "outline"
+                            @click = "ticketCreate"
+                        >
+                            Submit
+                        </TButton>
+                    </div>
                 </TForm>
-
             </TCard>
         </TModal>
-
-
-
     </div>
-    {{ form }}
 </template>
