@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { z } from 'zod'
 import { useViolatorModal } from '@/composables/useViolatorModal'
 
@@ -35,8 +34,6 @@ const genders = [
 async function createViolator() {
     if (loading.value) return;
     loading.value = true;
-
-    console.log('Submitting Form:', form.value);
 
     try {
         await $api.post('violators', form.value);

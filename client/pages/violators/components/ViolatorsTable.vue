@@ -2,16 +2,18 @@
 const router = useRouter();
 const { $api } = useNuxtApp()
 const violators = ref([])
+
 // Searcher Component
 const {search, pagination } = useSearcher({
     // List Backend Route
     api: 'violators',
     // limit,
-    limit: 25, 
+    limit: 10, 
     method: 'get',
     // Callback Function to call on Page Change
     onPageChange: fetchViolatorList,
 });
+
 const loading = ref(true);
 
 const columns = [
@@ -51,7 +53,6 @@ function viewViolator(row: Violator) {
 }
 
 async function fetchViolatorList() {
-
     const { data } = await search()
     violators.value = data.data
 }
@@ -76,6 +77,6 @@ onMounted(() => {
             </template>
         </TTable>
 
-        <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total"></TPagination>
+        <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total" class="mt-4"></TPagination>
     </div>
 </template>

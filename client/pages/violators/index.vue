@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
-import { useRouter } from 'vue-router';
 import { useViolatorModal } from '@/composables/useViolatorModal'
 
 const ViolatorsTable = defineAsyncComponent(() => import('@/pages/violators/components/ViolatorsTable.vue'))
