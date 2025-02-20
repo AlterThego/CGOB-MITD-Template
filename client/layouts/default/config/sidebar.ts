@@ -33,5 +33,11 @@ export default computed<Array<MenuOption>>(() => {
   const layoutName = $route.matched[0]?.name as string;
   if (layoutName === "settings") return settings.value;
   if (layoutName === "home") return home.value;
-  return [];
+  return [
+    {
+      label: "Violations",
+      icon: "tabler:notebook"            ,
+      to: {name: 'tickets-index'},
+    }
+  ];
 });
