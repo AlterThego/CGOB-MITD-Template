@@ -55,6 +55,7 @@ function viewViolator(row: Violator) {
 async function fetchViolatorList() {
     const { data } = await search()
     violators.value = data.data
+    loading.value = false
 }
 
 watch(() => pagination.page, async () => {
