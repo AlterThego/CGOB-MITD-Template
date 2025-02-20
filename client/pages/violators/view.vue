@@ -1,27 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useViolatorModal } from '@/composables/useViolatorModal';
-
-const ViolatorUpdateModal = defineAsyncComponent(() => import('@/pages/violators/components/View/ViolatorUpdateModal.vue'));
-const ViolatorProfile = defineAsyncComponent(() => import('@/pages/violators/components/View/ViolatorProfile.vue'));
-const Spinner = defineAsyncComponent(() => import('@/pages/violators/components/Assets/Spinner.vue'));
-
 const { $api } = useNuxtApp();
 const route = useRoute();
-const violator = ref();
 const router = useRouter();
-const { isOpenUpdateViolator, openUpdateModal } = useViolatorModal();
-const deleting = ref(false);
+const { openUpdateModal } = useViolatorModal();
 
-async function showViolator() {
-    const response = await $api.get(`violators/${route.params.id}`);
-    violator.value = response.data;
-}
+const ViolatorDetails = defineAsyncComponent(() => import('@/pages/violators/components/View/ViolatorDetails.vue'));
+const ConfirmationDialog = defineAsyncComponent(() => import('@/pages/violators/components/Assets/ConfirmationDialog.vue'));
+const ViolatorUpdateModal = defineAsyncComponent(() => import('@/pages/violators/components/View/ViolatorUpdateModal.vue'));
+
+const deleting = ref(false);
+const confirmationDialog = ref();
+const violator = ref();
+const violatorDetailsKey = ref(0);
 
 async function deleteViolator() {
     if (deleting.value) return;
-    const confirmed = confirm('Are you sure you want to delete this violator?');
+
+    const confirmed = await confirmationDialog.value.openDialog(
+        'Delete Violator',
+        'Are you sure you want to delete this violator?'
+    );
+
     if (!confirmed) return;
+
     deleting.value = true;
     try {
         await $api.delete(`violators/${route.params.id}`);
@@ -33,8 +34,14 @@ async function deleteViolator() {
     }
 }
 
+async function fetchViolator() {
+    const response = await $api.get(`violators/${route.params.id}`);
+    violator.value = response.data;
+    violatorDetailsKey.value += 1;
+}
+
 onMounted(() => {
-    showViolator();
+    fetchViolator();
 });
 </script>
 
@@ -47,19 +54,14 @@ onMounted(() => {
 
             <Suspense>
                 <template #default>
-                    <!-- <ViolatorProfile v-if="violator" :violator="violator" /> -->
-                    <div class="flex items-center gap-4 p-4">
-                        <TAvatar size="xl" :src="`https://api.dicebear.com/9.x/avataaars/svg?seed=${avatarSeed}`"
-                            alt="User Avatar" />
-                        <div class="flex-row gap-y-10">
-                            <h1 class="text-2xl font-semibold text-gray-900">{{ violator?.full_name }}</h1>
-                            <p class="text-gray-600 text-xs">Gender: <span class="font-sm">{{ violator?.gender }}</span>
-                            </p>
-                        </div>
-                    </div>
+                    <ViolatorDetails :key="violatorDetailsKey" />
                 </template>
                 <template #fallback>
-                    <Spinner />
+                    <div class="flex justify-center items-center">
+                        <div
+                            class="animate-spin border-4 border-primary border-t-transparent rounded-full w-5 h-5 mr-2">
+                        </div>
+                    </div>
                 </template>
             </Suspense>
 
@@ -83,6 +85,7 @@ onMounted(() => {
             </template>
         </TCard>
 
-        <ViolatorUpdateModal v-if="violator" :violator="violator" @update="showViolator" />
+        <ViolatorUpdateModal v-if="violator" :violator="violator" @update="fetchViolator" />
+        <ConfirmationDialog ref="confirmationDialog" />
     </div>
 </template>

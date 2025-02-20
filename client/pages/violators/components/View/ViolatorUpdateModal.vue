@@ -69,15 +69,14 @@ async function updateViolator() {
                         <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                         <TInput placeholder="Langaoen" v-model="localViolator.last_name" />
                     </div>
+                    <div class="col-span py-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                        <TSelect placeholder="Select gender" value-attribute="id" option-attribute="name"
+                            v-model=localViolator.gender_id :options="genders" :search-atttributes="['name']" />
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                    <TSelect placeholder="Select gender" value-attribute="id" option-attribute="name"
-                        v-model=localViolator.gender_id :options="genders" :search-atttributes = "['name']" />
-                </div>
-
-                <div class="flex w-full justify-end px-4">
+                <div class="flex w-full justify-start px-4">
                     <div class="py-2">
                         <TButton label="Submit" @click="updateViolator" :disabled="loading">
                             <span v-if="loading"

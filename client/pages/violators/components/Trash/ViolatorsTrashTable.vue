@@ -1,7 +1,11 @@
 <script setup lang="ts">
 const { $api } = useNuxtApp()
+
+const ConfirmationDialog = defineAsyncComponent(() => import('@/pages/violators/components/Assets/ConfirmationDialog.vue'));
+
 const violators = ref([])
 const loading = ref(false);
+const confirmationDialog = ref();
 
 const columns = [
     { key: 'id', label: 'ID' },
@@ -43,8 +47,16 @@ function fetchViolatorTrashedList() {
         });
 }
 
-function restoreTrashedViolator(row: Violator) {
+async function restoreTrashedViolator(row: Violator) {
     loading.value = true;
+
+    const confirmed = await confirmationDialog.value.openDialog(
+        'Restore Violator',
+        'Are you sure you want to restore this violator?'
+    );
+
+    if (!confirmed) return;
+
     $api.patch(`violators/${row.id}`)
         .then(() => {
             fetchViolatorTrashedList();
@@ -69,5 +81,7 @@ onMounted(() => {
                 </TDropdown>
             </template>
         </TTable>
+
+        <ConfirmationDialog ref="confirmationDialog" />
     </div>
 </template>
