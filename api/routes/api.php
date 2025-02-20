@@ -19,7 +19,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\ViolationController;
 use App\Http\Controllers\ViolatorController;
 
-Route::prefix("tickets")->group(function() {
+Route::prefix("tickets")->group(function () {
     Route::get("", [TicketController::class, "list"])->name("tickets.list");
     Route::get("{ticket}", [TicketController::class, "show"])->name("tickets.name");
     Route::post("", [TicketController::class, "create"])->name("tickets.create");
@@ -28,7 +28,7 @@ Route::prefix("tickets")->group(function() {
     Route::patch("{ticket}", [TicketController::class, "restore"])->name("tickets.restore");
 });
 
-Route::prefix("violators")->group(function() {
+Route::prefix("violators")->group(function () {
     Route::get("", [ViolatorController::class, "list"])->name("violators.list");
     Route::get("{violator}", [ViolatorController::class, "show"])->name("violators.name");
     Route::post("", [ViolatorController::class, "create"])->name("violators.create");
@@ -37,10 +37,16 @@ Route::prefix("violators")->group(function() {
     Route::patch("{violator}", [ViolatorController::class, "restore"])->name("violators.restore");
 });
 
-Route::prefix("violations")->group(function() {
+Route::prefix("violations")->group(function () {
+    // List of violations and archived violations
     Route::get("", [ViolationController::class, "list"])->name("violations.list");
     Route::get("/archived", [ViolationController::class, "archived"])->name("violations.archived");
+
+    // Show violation and archived violation
     Route::get("{violation}", [ViolationController::class, "show"])->name("violations.name");
+    Route::get("/archived/{violation}", [ViolationController::class, "showArchived"])->name("violations.view-archived");
+
+    // Create, update, delete, restore
     Route::post("", [ViolationController::class, "create"])->name("violations.create");
     Route::put("{violation}", [ViolationController::class, "update"])->name("violations.update");
     Route::delete("{violation}", [ViolationController::class, "delete"])->name("violations.delete");
@@ -202,7 +208,5 @@ Route::middleware(["api", "throttle:60,1"])->prefix("v1.0")->group(function () {
  * prettier-ignore
  */
 Route::middleware(["auth:sanctum", "throttle:60,1"])->prefix("v1.0")->group(function () {
-    Route::middleware(["verified"])->group(function () {
-
-    });
+    Route::middleware(["verified"])->group(function () {});
 });

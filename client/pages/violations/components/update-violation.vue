@@ -8,6 +8,7 @@ const route = useRoute();
 const toast = useToast()
 const { $api } = useNuxtApp();
 const violation = ref<any>(null);
+const router = useRouter();
 
 // Form for binding
 const form = ref({
@@ -70,6 +71,7 @@ function updateViolation() {
                 title: 'Success',
                 description: 'The violation was updated successfully.',
             })
+            router.push({ name: 'violations-index' });
         })
 }
 

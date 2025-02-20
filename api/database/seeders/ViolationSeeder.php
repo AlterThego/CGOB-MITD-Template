@@ -14,6 +14,6 @@ class ViolationSeeder extends Seeder
      */
     public function run(): void
     {
-        Violation::factory()->count(5)->create();
+        Violation::factory()->count(1000)->create();
     }
 }

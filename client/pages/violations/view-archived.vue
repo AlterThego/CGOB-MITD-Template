@@ -9,7 +9,7 @@ const toast = useToast()
 
 // Show violation function
 function showViolation() {
-    $api.get(`violations/${route.params.id}`)
+    $api.get(`violations/archived/${route.params.id}`)
         .then((response) => {
             violation.value = response.data
         })
@@ -19,17 +19,6 @@ onMounted(() => {
     showViolation()
 })
 
-// Delete violation function
-function deleteViolation() {
-    $api.delete(`violations/${route.params.id}`)
-        .then(() => {
-            toast.add({
-                title: 'Success',
-                description: 'The ticket was deleted successfully.',
-            })
-            router.push({ name: 'violations-index' });
-        })
-}
 
 // Restore violation function
 function restoreViolation() {
@@ -42,10 +31,6 @@ function restoreViolation() {
             router.push({ name: 'violations-index' });
         })
 }
-
-const UpdateModal = defineAsyncComponent(() =>
-    import('@/pages/violations/components/update-violation.vue')
-)
 
 
 </script>
@@ -66,15 +51,9 @@ const UpdateModal = defineAsyncComponent(() =>
                     </div>
 
                     <div class="flex items-center gap-x-4">
-                        <UpdateModal v-if="!violation?.deleted_at" />
-                        <TButton v-if="!violation?.deleted_at" label="Delete Violation"
-                            icon="i-heroicons-trash-20-solid" color="rose" variant="outline" @click="deleteViolation()"
-                            class="hover:bg-rose-50 w-40 justify-center" />
-
-                        <TButton v-else label="Restore Violation" icon="i-heroicons-arrow-uturn-left-solid"
-                            color="orange" variant="outline" @click="restoreViolation()"
+                        <TButton label="Restore Violation" icon="i-heroicons-arrow-uturn-left-solid" color="orange"
+                            variant="outline" @click="restoreViolation()"
                             class="hover:bg-orange-50 w-40 justify-center" />
-
                     </div>
                 </div>
             </template>
@@ -108,9 +87,9 @@ const UpdateModal = defineAsyncComponent(() =>
                 <!-- Right Column -->
                 <div class="w-full h-full flex flex-col gap-y-4">
                     <div class="min-h-[60px]">
-                        <span class="text-sm font-bold block">Created At</span>
+                        <span class="text-sm font-bold block">Deleted At</span>
                         <span class="text-base ">
-                            {{ new Date(violation?.created_at).toLocaleDateString('en-US', {
+                            {{ new Date(violation?.deleted_at).toLocaleDateString('en-US', {
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric',
@@ -121,8 +100,8 @@ const UpdateModal = defineAsyncComponent(() =>
                     </div>
                     <div class="min-h-[60px]">
                         <span class="text-sm font-bold block">Status</span>
-                        <TBadge class="text-sm" color="green">
-                            Active
+                        <TBadge class="text-sm" color="red">
+                            Archived
                         </TBadge>
                     </div>
                 </div>
@@ -136,8 +115,8 @@ const UpdateModal = defineAsyncComponent(() =>
                         Date(violation?.created_at).toLocaleDateString() }}</span>
                     <div class="flex gap-2">
                         <TButton color="gray" variant="outline" icon="i-heroicons-arrow-left"
-                            :to="{ name: 'violations-index' }" class="hover:bg-gray-100">
-                            Back to List
+                            :to="{ name: 'violations-archived' }" class="hover:bg-gray-100">
+                            Back to Archived
                         </TButton>
                     </div>
                 </div>

@@ -87,7 +87,7 @@ const items = (row: Violation) => [
         icon: 'i-heroicons-view-columns-20-solid',
         click: () => {
             // console.log('Pushing to Ticket View:', row.id)
-            router.push({ name: 'violations-view', params: { id: row.id } });
+            router.push({ name: 'violations-view-archived', params: { id: row.id } });
         }
     }]
 ]
@@ -112,20 +112,23 @@ const selectedColumns = ref([...columns])
     <div class="w-full max-w-screen-xl mx-auto my-10">
         <TCard>
             <template #header>
-                <div class="flex justify-between items-center w-full">
-
-                    <h1 class="font-bold">Violations</h1>
-
-
-                    <div class="flex justify-between items-center gap-x-4">
-                        <TSelectMenu v-model="selectedColumns" :options="columns" multiple placeholder="Columns" />
+                <div class="grid grid-cols-3 items-center w-full px-10">
+                    <div class="flex justify-start">
                         <NuxtLink :to="{ name: 'violations-index' }">
-                            <TButton icon="i-heroicons-home" size="sm" color="primary" variant="outline" label="Home"
-                                :trailing="false" />
+                            <TButton icon="i-heroicons-home" class="w-28 flex justify-center" size="sm" color="primary"
+                                variant="outline" label="Home" :trailing="false" />
                         </NuxtLink>
+
+                    </div>
+                    <div class="flex justify-center">
+                        <h1 class="font-bold text-lg">Archived Violations</h1>
+                    </div>
+
+                    <div class="flex justify-end gap-x-4">
+                        <CreateViolation @created="getViolationsList" />
+                        <TSelectMenu v-model="selectedColumns" :options="columns" multiple placeholder="Columns" />
                     </div>
                 </div>
-
 
             </template>
 

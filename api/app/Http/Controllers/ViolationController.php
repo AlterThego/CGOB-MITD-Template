@@ -19,6 +19,13 @@ class ViolationController extends Controller
         return response()->json(new ViolationResource($violation));
     }
 
+    public function showArchived($violation)
+    {
+        $archivedViolation = Violation::onlyTrashed()->findOrFail($violation);
+
+        return response()->json(new ViolationResource($archivedViolation));
+    }
+
     public function list(Request $request)
     {
         $perPage = $request->input('limit', 10);

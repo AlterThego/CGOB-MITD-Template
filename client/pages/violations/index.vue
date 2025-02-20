@@ -62,15 +62,20 @@ const items = (row: Violation) => [
     <div class="w-full max-w-screen-xl mx-auto my-10">
         <TCard>
             <template #header>
-                <div class="flex justify-between items-center w-full">
-                    <h1 class="font-bold">Violations</h1>
-                    <div class="flex gap-x-4">
+                <div class="grid grid-cols-3 items-center w-full px-10">
+                    <div class="flex justify-start">
+                        <NuxtLink :to="{ name: 'violations-archived' }">
+                            <TButton icon="i-heroicons-archive-box" class="w-28 flex justify-center hover:bg-red-50"
+                                size="sm" color="red" variant="outline" label="Archive" :trailing="false" />
+                        </NuxtLink>
+                    </div>
+                    <div class="flex justify-center">
+                        <h1 class="font-bold text-lg">Violations</h1>
+                    </div>
+
+                    <div class="flex justify-end gap-x-4">
                         <CreateViolation @created="getViolationsList" />
                         <TSelectMenu v-model="selectedColumns" :options="columns" multiple placeholder="Columns" />
-                        <NuxtLink :to="{ name: 'violations-archived' }">
-                            <TButton icon="i-heroicons-archive-box" size="sm" color="red" variant="outline"
-                                label="Archive" :trailing="false" class="hover:bg-red-50" />
-                        </NuxtLink>
                     </div>
                 </div>
             </template>
