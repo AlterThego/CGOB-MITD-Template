@@ -30,6 +30,42 @@ export default computed(() => [
 			},
 		],
 	},
+   {
+				path: "/violations",
+				name: "violations-index",
+				component: () => import("@/pages/violations/index.vue"),
+				meta: {
+					title: "Violations: Index",
+				},
+			},
+
+      {
+				path: "/violations/view/:id?",
+				name: "violations-view",
+				component: () => import("~/pages/violations/view.vue"),
+				meta: {
+					title: "Violations: View",
+				},
+			},
+
+      {
+				path: "/violations/archived",
+				name: "violations-archived",
+				component: () => import("~/pages/violations/index-archived.vue"),
+				meta: {
+					title: "Violations: Index",
+				},
+			},
+
+      {
+				path: "/violations/archived/view/:id?",
+				name: "violations-view-archived",
+				component: () => import("~/pages/violations/view-archived.vue"),
+				meta: {
+					title: "Violations: View Archived",
+				},
+			},
+
   {
     path: "/t",
     name: "tests",
