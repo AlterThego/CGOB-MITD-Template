@@ -1,64 +1,13 @@
 <script setup lang = "ts">
     // IMPORT
-    //import { genderData } from './data/gender';
+    import { genderData, genderFetchAll } from './data/gender';
+    import { modalToggle, modalToggleDefault, modalFormData, modalFormDataDefault, modalFormCNMaxLength, modalFormSchema } from './data/modal';
     import { statusData } from './data/status';
-    import { modalToggle, modalToggleDefault, modalFormData, modalFormDataDefault, modalFormCNMaxLength, modalFormSchema } from './data/modal-shared';
-    import { ticketDataAll, ticketColumns } from './data/ticket';
 
     // DATA
     const router = useRouter();
-    const genderData = ref([]);
-    // LOAD
-    onMounted(() => {
-        const { $api } = useNuxtApp();
-        const route = useRoute();
-        $api.get('genders')
-            .then((response) => {
-                genderData.value = response.data;
-            });
-        ticketFetch();
-    });
 
-    // PAGINATION
-    const ticketFetch = async () => {
-        // use Search function from Searcher Composable.
-        const { data } = await search();
-        // assign the value to violators.
-        ticketDataAll.value = data.data;
-    }
-    
-    const { search, pagination } = useSearcher({
-        // List Backend Route
-        api: 'tickets',
-        // limit,
-        limit: 25, 
-        method: 'get',
-        // Callback Function to call on Page Change
-        onPageChange: ticketFetch,
-    });
-    // @ts-ignore
-    watch(() => pagination.page, async() => await search());
-
-
-    const modalSubmit = () => {
-        const { $api } = useNuxtApp();
-
-        const toast = useToast();
-
-        $api.post('tickets', modalFormData.value)
-            .then(() => {
-                modalFormData.value = modalFormDataDefault.value;
-                modalToggle.value = modalToggleDefault.value;
-
-                toast.add({
-                    title: 'Success',
-                    description: 'The ticket was created successfully.',
-                });
-                ticketFetch();
-            });
-    };
-
-    // TICKET: Action (for some reason, this section does not work elsewhere unless put here)
+    // TICKET
     type Ticket = {
         id: number,
         citation_number: string,
@@ -74,7 +23,55 @@
         created_at: string,
     };
 
-    const ticketActions = (row : Ticket) => [
+    const ticketDataAll = ref([]);
+    const ticketColumns = [{
+            label: 'ID',
+            key: 'id',
+            sortable: true,
+        }, {
+            label: 'Violator',
+            key: 'violator.full_name',
+            sortable: true,
+        }, {
+            label: 'Citation Number',
+            key: 'citation_number',
+            sortable: true,
+        }, {
+            label: 'Created At',
+            key: 'created_at',
+            sortable: true,
+        }, {
+            label: 'Status',
+            key: 'status',
+            sortable: true,
+        }, {
+            key: 'actions',
+        },
+    ];
+
+    const ticketFetchAll = async () => {
+        const { data } = await search();
+
+        ticketDataAll.value = data.data;
+    };
+    const ticketCreate = () => {
+        const { $api } = useNuxtApp();
+
+        const toast = useToast();
+
+        $api.post('tickets', modalFormData.value)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
+
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was created successfully.',
+                });
+                ticketFetchAll();
+            });
+    };
+    const ticketAction = (row : Ticket) => [
         [{
             label: 'View',
             icon: 'i-heroicons-user',
@@ -83,10 +80,26 @@
             },
         }],
     ];
+
+    // PAGINATION
+    const { search, pagination } = useSearcher({
+        api: 'tickets',
+        limit: 25, 
+        method: 'get',
+        onPageChange: ticketFetchAll,
+    });
+    // @ts-ignore
+    watch(() => pagination.page, async() => await search());
+
+    // LOAD
+    onMounted(() => {
+        genderFetchAll();
+        ticketFetchAll();
+    });
 </script>
 
 <template>
-    <div class = "max-w-screen-xl mx-auto p-4 w-full">
+    <div class = "max-w-screen-xl mx-auto p-8 w-full">
         <!-- HEADER -->
         <header class = "flex items-center justify-between py-2">
             <h1 class = "font-bold">Tickets</h1>
@@ -99,7 +112,7 @@
                 @click = "modalToggle = true"
             />
         </header>
-        <!-- WIP: TABLE -->
+        <!-- TABLE -->
         <TTable
             :rows = "ticketDataAll"
             :columns = "ticketColumns"
@@ -114,7 +127,7 @@
                 />
             </template>
             <template #actions-data = "{ row }">
-                <TDropdown :items = "ticketActions(row)">
+                <TDropdown :items = "ticketAction(row)">
                     <TButton
                         icon = "i-heroicons-ellipsis-horizontal"
                         color = "gray"
@@ -123,7 +136,12 @@
                 </TDropdown>
             </template>
         </TTable>
-        <TPagination v-model = "pagination.page" :page-count = "pagination.limit" :total = "pagination.total"></TPagination>
+        <!-- PAGINATION -->
+        <TPagination
+            v-model = "pagination.page"
+            :total = "pagination.total"
+            :page-count = "pagination.limit"
+        />
         <!-- MODAL -->
         <TModal v-model = "modalToggle" prevent-close>
             <TCard class = "max-w-screen-sm mx-auto w-full">
@@ -154,16 +172,11 @@
                             />
                         </TFormGroup>
                         <TFormGroup class = "w-full" label = "Status" name = "status">
-                            <TInputMenu
-                                by = "id"
+                            <TSelect
                                 placeholder = "Select status"
-                                option-attribute = "name"
                                 v-model = "modalFormData.status"
                                 :options = "statusData"
-                                :search-attributes = "['name']"
-                                @update:modelValue = "(selected) => modalFormData.status = selected ? String(selected.name) : ''"
-                            >
-                            </TInputMenu>
+                            />
                         </TFormGroup>
                     </div>
                     <!-- FIRST NAME | MIDDLE NAME -->
@@ -193,16 +206,13 @@
                             />
                         </TFormGroup>
                         <TFormGroup class = "w-full" label = "Gender">
-                            <TInputMenu
-                                by = "id"
+                            <TSelect
                                 placeholder = "Select gender"
+                                value-attribute = "id"
                                 option-attribute = "name"
                                 v-model = "modalFormData.violator.gender_id"
                                 :options = "genderData"
-                                :search-attributes = "['name']"
-                                @update:modelValue = "(selected) => modalFormData.violator.gender_id = selected ? selected.id : null"
-                            >
-                            </TInputMenu>
+                            />
                         </TFormGroup>
                     </div>
                     <!-- SUBMIT -->
@@ -213,8 +223,9 @@
                             type = "submit"
                             class = "justify-center w-full"
                             color = "emerald"
+                            value = "Submit"
                             variant = "outline"
-                            @click = "modalSubmit"
+                            @click = "ticketCreate"
                         >
                             Submit
                         </TButton>

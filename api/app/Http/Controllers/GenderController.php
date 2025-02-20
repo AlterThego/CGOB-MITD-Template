@@ -12,6 +12,6 @@ class GenderController extends Controller
     {
         $genders = Gender::all();
 
-        return response()->json(['data' => GenderResource::collection($genders)]);
+        return response()->json(GenderResource::collection($genders));
     }
 }

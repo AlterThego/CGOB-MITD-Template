@@ -1,39 +1,67 @@
 <script setup lang = "ts">
     // IMPORT
-    import { genderData } from './data/gender';
+    import { genderData, genderFetchAll } from './data/gender';
+    import { modalToggle, modalToggleDefault, modalFormData, modalFormDataDefault, modalFormCNMaxLength, modalFormSchema } from './data/modal';
     import { statusData } from './data/status';
-    import { modalToggle, modalFormData, modalFormCNMaxLength, modalFormSchema } from './data/modal-shared';
-    import { modalUpdate, modalDelete, modalRestore } from './data/modal-update';
-    import { ticketDataSingle } from './data/ticket';
 
-    // LOAD
-    const ticketFetchSingle = () => {
+    // DATA
     const { $api } = useNuxtApp();
 
     const route = useRoute();
+    const toast = useToast();
 
-    $api.get(`tickets/${route.params.id}`)
-        .then((response) => {
-            // Get
-            ticketDataSingle.value = response.data;
+    // TICKET
+    const ticketDataSingle = ref();
+    const ticketFetchSingle = () => {
+        $api.get(`tickets/${route.params.id}`)
+            .then((response) => {
+                ticketDataSingle.value = response.data;
+                modalFormData.value = ticketDataSingle.value;
+            });
+    };
+    const ticketUpdate = () => {
+        $api.put(`tickets/${route.params.id}`, modalFormData.value)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
 
-            // Property "gender" is retrieved. Do not be confused with "gender_id".
-            // Get "gender_id" using "gender".
-            const getGenderID = (name : any) => {
-                const gender = genderData.find(g => g.name === name);
-                return gender ? gender.id : "Unknown";
-            };
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was updated successfully.',
+                });
+            });
+    };
+    const ticketDelete = () => {
+        $api.delete(`tickets/${route.params.id}`)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
 
-            // Set
-            ticketDataSingle.value.violator.gender_id = getGenderID(ticketDataSingle.value.violator.gender);
-            modalFormData.value = ticketDataSingle.value;
-        });
-};
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was deleted successfully.',
+                });
+            });
+    };
+    const ticketRestore = () => {
+        $api.patch(`tickets/${route.params.id}`)
+            .then(() => {
+                modalFormData.value = modalFormDataDefault.value;
+                modalToggle.value = modalToggleDefault.value;
+
+                toast.add({
+                    title: 'Success',
+                    description: 'The ticket was restored successfully.',
+                });
+            });
+    };
+
+    // LOAD
     onMounted(() => {
+        genderFetchAll();
         ticketFetchSingle();
     });
     
-
     // AVATAR
     const avatarSeed = computed(() => {
         return ticketDataSingle.value?.violator.first_name.replaceAll(' ', '+');
@@ -83,7 +111,10 @@
                         Back to List
                     </TButton>
                 </div>
-                <div class = "w-full">
+                <div
+                    class = "w-full"
+                    v-show = "(ticketDataSingle?.deleted_at === null)"
+                >
                     <TButton
                         icon = "i-heroicons-arrow-path"
                         class = "justify-center w-full"
@@ -95,26 +126,32 @@
                         Update
                     </TButton>
                 </div>
-                <div class = "w-full">
+                <div
+                    class = "w-full"
+                    v-show = "(ticketDataSingle?.deleted_at !== null)"
+                >
                     <TButton
                         icon = "i-heroicons-archive-box"
                         class = "justify-center w-full"
                         color = "orange"
                         variant = "outline"
                         :disabled = "(ticketDataSingle?.deleted_at !== null) ? false : true"
-                        @click = "modalRestore"
+                        @click = "ticketRestore"
                     >
                         Restore
                     </TButton>
                 </div>
-                <div class = "w-full">
+                <div
+                    class = "w-full"
+                    v-show = "(ticketDataSingle?.deleted_at === null)"
+                >
                     <TButton
                         icon = "i-heroicons-trash"
                         class = "justify-center w-full"
                         color = "red"
                         variant = "outline"
                         :disabled = "(ticketDataSingle?.deleted_at !== null) ? true : false"
-                        @click = "modalDelete"
+                        @click = "ticketDelete"
                     >
                         Delete
                     </TButton>
@@ -196,7 +233,6 @@
                                 option-attribute = "name"
                                 v-model = "modalFormData.violator.gender_id"
                                 :options = "genderData"
-                                :search-attributes = "['name']"
                             />
                         </TFormGroup>
                     </div>
@@ -209,7 +245,7 @@
                             class = "justify-center w-full"
                             color = "blue"
                             variant = "outline"
-                            @click = "modalUpdate"
+                            @click = "ticketUpdate"
                         >
                             Update
                         </TButton>

@@ -57,7 +57,7 @@ class TicketController extends Controller
                         $violator_last_name_query->orWhere('last_name', 'ilike', "%{$request->query('last_name')}%");
                     });
             })
-            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->paginate($perPage);
 
         return response()->json([
