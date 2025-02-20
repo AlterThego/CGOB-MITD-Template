@@ -30,12 +30,14 @@ class ViolationController extends Controller
     {
         $perPage = $request->input('limit', 10);
 
+        $search_term = $request->input('search', '');
         // With foreign keys
         // $violations = Violation::with('genders')
         //     ->orderBy('id', 'asc')
         //     ->paginate($perPage);
 
-        $violations = Violation::orderBy('id', 'desc')
+        $violations = Violation::GeneralSearch($search_term)
+            ->orderBy('id', 'desc')
             ->paginate($perPage);
         // Reformat the Response Type such that the top level
         // includes the key and value of total number of items in the query
@@ -52,12 +54,15 @@ class ViolationController extends Controller
     {
         $perPage = $request->input('limit', 10);
 
+        $search_term = $request->input('search', '');
+
         // With foreign keys
         // $violations = Violation::with('genders')
         //     ->orderBy('id', 'asc')
         //     ->paginate($perPage);
 
         $violations = Violation::onlyTrashed()
+            ->generalSearch($search_term)
             ->orderBy('id')
             ->paginate($perPage);
         // Reformat the Response Type such that the top level

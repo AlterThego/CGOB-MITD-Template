@@ -33,6 +33,25 @@ function restoreViolation() {
 }
 
 
+// function updateViolation() {
+//     $api.put(`violations/${route.params.id}`, form.value) // Send form values for update
+//         .then(() => {
+//             isOpen.value = false;
+//             toast.add({
+//                 title: 'Success',
+//                 description: 'The violation was updated successfully.',
+//             })
+//             router.push({ name: 'violations-index' });
+//         })
+// }
+
+// // Form submission handler
+// async function onSubmit(event: FormSubmitEvent<Schema>) {
+//     console.log('Form submitted')
+//     updateViolation()
+// }
+
+
 </script>
 
 <template>

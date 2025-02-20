@@ -5,6 +5,22 @@ const { $api } = useNuxtApp();
 const router = useRouter();
 const violations = ref([])
 
+import { watchDebounced } from '@vueuse/core'
+import { shallowRef } from 'vue'
+
+
+const input = shallowRef()
+const updated = shallowRef(0)
+
+watchDebounced(input, () => {
+    updated.value += 1
+    params.value.search = input.value
+    search();
+    getViolationsList();
+}, { debounce: 1000, maxWait: 5000 })
+
+
+
 
 async function getViolationsList() {
     // use Search function from Searcher Composable.
@@ -19,7 +35,7 @@ onMounted(() => {
 })
 
 // Searcher Component
-const { search, pagination } = useSearcher({
+const { search, pagination, params } = useSearcher({
     // List Backend Route
     api: 'violations/archived',
     // limit,
@@ -27,6 +43,7 @@ const { search, pagination } = useSearcher({
     method: 'get',
     // Callback Function to call on Page Change
     onPageChange: getViolationsList,
+    onSearch: (response) => response.data.data
 });
 
 // Listen for value changes for pagination.page.
@@ -113,11 +130,12 @@ const selectedColumns = ref([...columns])
         <TCard>
             <template #header>
                 <div class="grid grid-cols-3 items-center w-full px-10">
-                    <div class="flex justify-start">
+                    <div class="flex justify-start w-full gap-x-4">
                         <NuxtLink :to="{ name: 'violations-index' }">
                             <TButton icon="i-heroicons-home" class="w-28 flex justify-center" size="sm" color="primary"
                                 variant="outline" label="Home" :trailing="false" />
                         </NuxtLink>
+                        <TInput v-model="input" placeholder="Search" />
 
                     </div>
                     <div class="flex justify-center">

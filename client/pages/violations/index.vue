@@ -5,6 +5,23 @@ const { $api } = useNuxtApp();
 const router = useRouter();
 const violations = ref([]);
 
+// Searcher test
+import { watchDebounced } from '@vueuse/core'
+import { shallowRef } from 'vue'
+
+
+const input = shallowRef()
+const updated = shallowRef(0)
+
+watchDebounced(input, () => {
+    updated.value += 1
+    params.value.search = input.value
+    search();
+    getViolationsList();
+}, { debounce: 1000, maxWait: 5000 })
+
+
+
 type Violation = {
     id: number
     name: string
@@ -25,11 +42,12 @@ onMounted(() => {
     getViolationsList();
 });
 
-const { search, pagination } = useSearcher({
+const { search, pagination, params } = useSearcher({
     api: 'violations',
     limit: 10,
     method: 'get',
     onPageChange: getViolationsList,
+    onSearch: (response) => response.data.data
 });
 
 // @ts-ignore
@@ -63,11 +81,12 @@ const items = (row: Violation) => [
         <TCard>
             <template #header>
                 <div class="grid grid-cols-3 items-center w-full px-10">
-                    <div class="flex justify-start">
+                    <div class="flex justify-start w-full gap-x-4">
                         <NuxtLink :to="{ name: 'violations-archived' }">
                             <TButton icon="i-heroicons-archive-box" class="w-28 flex justify-center hover:bg-red-50"
                                 size="sm" color="red" variant="outline" label="Archive" :trailing="false" />
                         </NuxtLink>
+                        <TInput v-model="input" placeholder="Search" />
                     </div>
                     <div class="flex justify-center">
                         <h1 class="font-bold text-lg">Violations</h1>
@@ -81,6 +100,7 @@ const items = (row: Violation) => [
             </template>
 
             <div class="p-2">
+
                 <TTable :rows="violations" :columns="selectedColumns" class="w-full">
                     <template #actions-data="{ row }">
                         <TDropdown :items="items(row)">
@@ -91,6 +111,8 @@ const items = (row: Violation) => [
                 <div class="flex justify-end px-3 py-3.5 border-t border-gray-200 dark:border-gray-700">
                     <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total" />
                 </div>
+
+
             </div>
         </TCard>
     </div>
