@@ -22,8 +22,10 @@ class ViolatorController extends Controller
     public function list(Request $request)
     {
         $perPage = $request->input('limit', 10);
+        $search_term = $request->input('search_term', '');
 
         $violators = Violator::with('gender')
+            ->generalSearch($search_term)
             ->orderBy('id', 'asc')
             ->paginate($perPage);
 
@@ -95,12 +97,36 @@ class ViolatorController extends Controller
     public function trashed(Request $request)
     {
         $perPage = $request->input('per_page', 10);
+        $search_term = $request->input('search_term', '');
 
         $violators = Violator::onlyTrashed()
             ->with('gender')
+            ->generalSearch($search_term)
             ->orderBy('id', 'asc')
             ->paginate($perPage);
 
-        return response()->json(ViolatorResource::collection($violators));
+
+        return response()->json([
+            'total' => $violators->total(),
+            'page' => $violators->currentPage(),
+            'data' => ViolatorResource::collection($violators)
+        ]);
     }
+
+    // public function list(Request $request)
+    // {
+    //     $perPage = $request->input('limit', 10);
+    //     $search_term = $request->input('search_term', '');
+
+    //     $violators = Violator::with('gender')
+    //         ->generalSearch($search_term)
+    //         ->orderBy('id', 'asc')
+    //         ->paginate($perPage);
+
+    //     return response()->json([
+    //         'total' => $violators->total(),
+    //         'page' => $violators->currentPage(),
+    //         'data' => ViolatorResource::collection($violators)
+    //     ]);
+    // }
 }

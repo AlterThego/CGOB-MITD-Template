@@ -1,10 +1,10 @@
 <script setup lang="ts">
-const ConfirmationDialog = defineAsyncComponent(() => import('@/pages/violators/components/Assets/ConfirmationDialog.vue'));
-
 const { $api } = useNuxtApp()
 
-const violators = ref([]);
-const loading = ref(true);
+const ConfirmationDialog = defineAsyncComponent(() => import('@/pages/violators/components/Assets/ConfirmationDialog.vue'));
+
+const violators = ref([])
+const loading = ref(false);
 const confirmationDialog = ref();
 
 const columns = [
@@ -33,12 +33,19 @@ type Violator = {
     full_name: string;
 };
 
-const { search, pagination, params } = useSearcher({
-    api: 'violators/trashed',
-    limit: 10,
-    method: 'get',
-    onPageChange: fetchViolatorTrashedList,
-});
+function fetchViolatorTrashedList() {
+    loading.value = true;
+    $api.get('violators/trashed')
+        .then((response) => {
+            violators.value = response.data
+        })
+        .catch((error) => {
+            console.error('Error fetching violators:', error);
+        })
+        .finally(() => {
+            loading.value = false;
+        });
+}
 
 async function restoreTrashedViolator(row: Violator) {
     loading.value = true;
@@ -59,43 +66,13 @@ async function restoreTrashedViolator(row: Violator) {
         });
 }
 
-async function fetchViolatorTrashedList() {
-    const { data } = await search();
-    violators.value = data.data;
-    loading.value = false;
-}
-
-watchDebounced(
-    () => params.value.search_term,
-    async (newSearchTerm) => {
-        if (newSearchTerm === undefined || newSearchTerm.trim() === '') {
-            pagination.value.page = 1;
-        }
-
-        await fetchViolatorTrashedList();
-    },
-    {
-        debounce: 300,
-        maxWait: 1000,
-        immediate: true,
-    }
-);
-
-watch(() => pagination.page, async () => {
-    await search()
-})
-
 onMounted(() => {
     fetchViolatorTrashedList()
 })
 </script>
 
 <template>
-    <div class="flex flex-col gap-3">
-        <div class="flex gap-3">
-            <TInput class="w-100" v-model="params.search_term" placeholder="Search Violators" />
-            <TButton @click="search()" label="Search"></TButton>
-        </div>
+    <div>
         <TTable :loading-state="{ icon: 'i-heroicons-arrow-path-20-solid', label: 'Loading...' }" :loading="loading"
             :rows="violators" :columns="columns">
             <template #actions-data="{ row }">
@@ -106,6 +83,5 @@ onMounted(() => {
         </TTable>
 
         <ConfirmationDialog ref="confirmationDialog" />
-        <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total" class="mt-4" />
     </div>
 </template>

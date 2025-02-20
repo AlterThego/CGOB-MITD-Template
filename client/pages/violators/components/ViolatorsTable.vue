@@ -1,11 +1,10 @@
 <script setup lang="ts">
 const router = useRouter();
-const { $api } = useNuxtApp()
 const violators = ref([])
 
-const {search, pagination } = useSearcher({
+const { search, pagination, params } = useSearcher({
     api: 'violators',
-    limit: 10, 
+    limit: 10,
     method: 'get',
     onPageChange: fetchViolatorList,
 });
@@ -58,13 +57,33 @@ watch(() => pagination.page, async () => {
     await search()
 })
 
+watchDebounced(
+    () => params.value.search_term,
+    async (newSearchTerm) => {
+        if (newSearchTerm === undefined || newSearchTerm.trim() === '') {
+            pagination.value.page = 1;
+        }
+
+        await fetchViolatorList();
+    },
+    {
+        debounce: 300,
+        maxWait: 1000,
+        immediate: true,
+    }
+);
+
 onMounted(() => {
     fetchViolatorList()
 })
 </script>
 
 <template>
-    <div>
+    <div class="flex flex-col gap-3">
+        <div class="flex gap-3">
+            <TInput class="w-100" v-model="params.search_term" placeholder="Search Violators" />
+            <TButton @click="search()" label="Search"></TButton>
+        </div>
         <TTable :loading-state="{ icon: 'i-heroicons-arrow-path-20-solid', label: 'Loading...' }" :loading="loading"
             :rows="violators" :columns="columns">
             <template #actions-data="{ row }">
@@ -74,6 +93,7 @@ onMounted(() => {
             </template>
         </TTable>
 
-        <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total" class="mt-4"></TPagination>
+        <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total" class="mt-4">
+        </TPagination>
     </div>
 </template>

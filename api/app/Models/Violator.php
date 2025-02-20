@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Models\Ticket;
 use App\Models\Gender;
@@ -45,6 +45,22 @@ class Violator extends AppModel
     public function gender()
     {
         return $this->belongsTo(Gender::class);
+    }
+
+    public function scopeGeneralSearch(Builder $query, string | null $search_term)
+    {
+        return $query->when($search_term, function ($general_search_query) use ($search_term) {
+            $general_search_query->where('first_name', 'ilike', "%{$search_term}%")
+            ->orWhere('middle_name', 'ilike', "%{$search_term}%")
+            ->orWhere('last_name', 'ilike', "%{$search_term}%");
+        });
+    }
+
+    public function scopeFirstName(Builder $query, string | null $first_name)
+    {
+        return $query->where($first_name, function ($first_name_search_query) use ($first_name){
+            $first_name_search_query->where('first_name', 'ilike', "%{$first_name}%");
+        });
     }
 
     public function getFullNameAttribute()
