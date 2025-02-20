@@ -3,14 +3,10 @@ const router = useRouter();
 const { $api } = useNuxtApp()
 const violators = ref([])
 
-// Searcher Component
 const {search, pagination } = useSearcher({
-    // List Backend Route
     api: 'violators',
-    // limit,
     limit: 10, 
     method: 'get',
-    // Callback Function to call on Page Change
     onPageChange: fetchViolatorList,
 });
 
