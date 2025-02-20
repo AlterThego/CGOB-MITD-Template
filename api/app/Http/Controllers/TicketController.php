@@ -136,22 +136,15 @@ class TicketController extends Controller
     {
         $fields = $request->validated();
 
-        DB::beginTransaction();
-        try {
-            // Update violator if data exists
-            if (!empty($fields['violator'])) {
-                $ticket->violator()->update($fields['violator']);
-            }
-
-            // Update ticket data
-            $ticket->update($fields);
-
-            DB::commit();
-            return response()->json(new TicketResource($ticket));
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => 'Failed to update ticket'], 500);
+        // Update violator if data exists
+        if (!empty($fields['violator'])) {
+            $ticket->violator()->update($fields['violator']);
         }
+
+        // Update ticket data
+        $ticket->update($fields);
+
+        return response()->json(new TicketResource($ticket));
     }
 
     /**

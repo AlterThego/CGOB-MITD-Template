@@ -67,6 +67,34 @@ export default computed(() => [
 			},
 
   {
+    children: [
+      {
+        path: "/violators",
+        name: "violators-index",
+        component: () => import("@/pages/violators/index.vue"),
+        meta: {
+          title: "Violators: Index",
+        },
+      },
+      {
+        path: "/violators/view/:id?",
+        name: "violators-view",
+        component: () => import("@/pages/violators/view.vue"),
+        meta: {
+          title: "Violators: Index",
+        },
+      },
+      {
+        path: "/violators/trashed",
+        name: "violators-bin",
+        component: () => import("@/pages/violators/trashed.vue"),
+        meta: {
+          title: "Violators: Bin",
+        },
+      },
+    ],
+  },
+  {
     path: "/t",
     name: "tests",
     component: () => import("@/pages/_tests/index.vue"),
