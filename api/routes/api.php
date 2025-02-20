@@ -17,6 +17,7 @@ use App\Http\Controllers\LogController;
 use App\Http\Controllers\GenderController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\ViolationController;
 use App\Http\Controllers\ViolatorController;
 
 Route::prefix("genders")->group(function() {
@@ -32,14 +33,31 @@ Route::prefix("tickets")->group(function() {
     Route::patch("{ticket}", [TicketController::class, "retore"])->name("tickets.restore");
 });
 
-Route::prefix("violators")->group(function() {
+Route::prefix("violators")->group(function () {
     Route::get("", [ViolatorController::class, "list"])->name("violators.list");
     Route::get("{violator}", [ViolatorController::class, "show"])->name("violators.name");
     Route::post("", [ViolatorController::class, "create"])->name("violators.create");
     Route::put("{violator}", [ViolatorController::class, "update"])->name("violators.update");
     Route::delete("{violator}", [ViolatorController::class, "delete"])->name("violators.delete");
-    Route::patch("{violator}", [ViolatorController::class, "retore"])->name("violators.restore");
+    Route::patch("{violator}", [ViolatorController::class, "restore"])->name("violators.restore");
 });
+
+Route::prefix("violations")->group(function () {
+    // List of violations and archived violations
+    Route::get("", [ViolationController::class, "list"])->name("violations.list");
+    Route::get("/archived", [ViolationController::class, "archived"])->name("violations.archived");
+
+    // Show violation and archived violation
+    Route::get("{violation}", [ViolationController::class, "show"])->name("violations.name");
+    Route::get("/archived/{violation}", [ViolationController::class, "showArchived"])->name("violations.view-archived");
+
+    // Create, update, delete, restore
+    Route::post("", [ViolationController::class, "create"])->name("violations.create");
+    Route::put("{violation}", [ViolationController::class, "update"])->name("violations.update");
+    Route::delete("{violation}", [ViolationController::class, "delete"])->name("violations.delete");
+    Route::patch("{violation}", [ViolationController::class, "restore"])->name("violations.restore");
+});
+
 
 Route::middleware(["auth:sanctum", "throttle:90,1", "isActive"])->group(function () {
     Route::middleware(["verified", "SPAOnly"])->group(function () {
@@ -195,7 +213,5 @@ Route::middleware(["api", "throttle:60,1"])->prefix("v1.0")->group(function () {
  * prettier-ignore
  */
 Route::middleware(["auth:sanctum", "throttle:60,1"])->prefix("v1.0")->group(function () {
-    Route::middleware(["verified"])->group(function () {
-
-    });
+    Route::middleware(["verified"])->group(function () {});
 });
