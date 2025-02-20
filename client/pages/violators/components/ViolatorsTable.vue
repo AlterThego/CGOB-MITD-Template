@@ -2,16 +2,14 @@
 const router = useRouter();
 const { $api } = useNuxtApp()
 const violators = ref([])
-// Searcher Component
+
 const {search, pagination } = useSearcher({
-    // List Backend Route
     api: 'violators',
-    // limit,
-    limit: 25, 
+    limit: 10, 
     method: 'get',
-    // Callback Function to call on Page Change
     onPageChange: fetchViolatorList,
 });
+
 const loading = ref(true);
 
 const columns = [
@@ -51,14 +49,14 @@ function viewViolator(row: Violator) {
 }
 
 async function fetchViolatorList() {
-    // use Search function from Searcher Composable.
-    const { data } = await search();
-    // assign the value to violators.
+    const { data } = await search()
     violators.value = data.data
+    loading.value = false
 }
 
-// Listen for value changes for pagination.page.
-watch(() => pagination.page, async() => await search());
+watch(() => pagination.page, async () => {
+    await search()
+})
 
 onMounted(() => {
     fetchViolatorList()
@@ -68,16 +66,14 @@ onMounted(() => {
 <template>
     <div>
         <TTable :loading-state="{ icon: 'i-heroicons-arrow-path-20-solid', label: 'Loading...' }" :loading="loading"
-            :rows="violators"
-            :columns="columns"
-            >
+            :rows="violators" :columns="columns">
             <template #actions-data="{ row }">
                 <TDropdown :items="actions(row)">
                     <TButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
                 </TDropdown>
             </template>
         </TTable>
-        <!-- Pass the values from pagination. -->
-        <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total"></TPagination>
+
+        <TPagination v-model="pagination.page" :page-count="pagination.limit" :total="pagination.total" class="mt-4"></TPagination>
     </div>
 </template>

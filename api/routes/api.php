@@ -35,6 +35,7 @@ Route::prefix("tickets")->group(function() {
 
 Route::prefix("violators")->group(function () {
     Route::get("", [ViolatorController::class, "list"])->name("violators.list");
+    Route::get("trashed", [ViolatorController::class, "trashed"])->name("violators.trashed");
     Route::get("{violator}", [ViolatorController::class, "show"])->name("violators.name");
     Route::post("", [ViolatorController::class, "create"])->name("violators.create");
     Route::put("{violator}", [ViolatorController::class, "update"])->name("violators.update");

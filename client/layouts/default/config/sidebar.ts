@@ -35,8 +35,13 @@ export default computed<Array<MenuOption>>(() => {
   if (layoutName === "home") return home.value;
   return [
     {
+      label: "Violators",
+      icon: "tabler:user-cancel",
+      to: {name:'violators-index'}
+    },
+    {
       label: "Violations",
-      icon: "tabler:notebook"            ,
+      icon: "tabler:notebook",
       to: {name: 'violations-index'},
     }
   ];
