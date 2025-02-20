@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
             AddressSeeder::class,
             PrivacyPolicySeeder::class,
             ViolatorSeeder::class,
-            TicketSeeder::class
+            TicketSeeder::class,
+            ViolationSeeder::class
         ]);
     }
 }
