@@ -20,8 +20,8 @@ class TicketFactory extends Factory
     {
         return [
             'violator_id' => Violator::inRandomOrder()->first()->id,
+            'status' => $this->faker->randomElement(['Active', 'Pending', 'Disposed']),
             'citation_number' => $this->faker->regexify('^\d{3}-\d{4}-\d{4}$'),
-            'status' => $this->faker->randomElement(['Active', 'Pending', 'Disposed'])
         ];
     }
 }
