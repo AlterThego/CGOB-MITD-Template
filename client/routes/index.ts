@@ -13,8 +13,8 @@ export default computed(() => [
 		children: [
 			{
 				path: "/tickets",
-				name: "tickets-index",
-				component: () => import("~/pages/tickets/index.vue"),
+				name: "tickets-index"
+				component: () => import("@/pages/tickets/index.vue")
 				meta: {
 					title: "Tickets: Index",
 				},
@@ -22,71 +22,9 @@ export default computed(() => [
 			{
 				path: "/tickets/view/:id?",
 				name: "tickets-view",
-				component: () => import("~/pages/tickets/view.vue"),
+				component: () => import("@/pages/tickets/view.vue"),
 				meta: {
 					title: "Tickets: View",
-				},
-			},
-
-      {
-				path: "/violations",
-				name: "violations-index",
-				component: () => import("@/pages/violations/index.vue"),
-				meta: {
-					title: "Violations: Index",
-				},
-			},
-
-      {
-				path: "/violations/view/:id?",
-				name: "violations-view",
-				component: () => import("~/pages/violations/view.vue"),
-				meta: {
-					title: "Violations: View",
-				},
-			},
-
-      {
-				path: "/violations/archived",
-				name: "violations-archived",
-				component: () => import("~/pages/violations/index-archived.vue"),
-				meta: {
-					title: "Violations: Index",
-				},
-			},
-
-      {
-				path: "/violations/archived/view/:id?",
-				name: "violations-view-archived",
-				component: () => import("~/pages/violations/view-archived.vue"),
-				meta: {
-					title: "Violations: View Archived",
-				},
-			},
-
-			/*{
-				path: "/tickets/update",
-				name: "tickets-update",
-				component: () => import("@/pages/ticket/Update.vue"),
-				meta: {
-					title: "Tickets: Update",
-				},
-			},
-			{
-				path: "/tickets/delete",
-				name: "tickets-delete",
-				component: () => import("@/pages/ticket/Delete.vue"),
-				meta: {
-					title: "Tickets: Delete",
-				},
-			},*/
-
-      {
-				path: "/tickets/updateee",
-				name: "tickets-update",
-				component: () => import("~/pages/tickets/update.vue"),
-				meta: {
-					title: "Tickets: Index",
 				},
 			},
 		],
